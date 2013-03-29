@@ -6,3 +6,5 @@
 *.ear
 */bin/*
 */libs/*
+utrillium-html/gwt-unitCache
+utrillium-html/war/WEB-INF/classes
