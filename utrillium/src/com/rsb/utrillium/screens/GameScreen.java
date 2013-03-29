@@ -72,6 +72,27 @@ public class GameScreen extends UTrilliumScreen {
 	@Override
 	public void render (float delta) {
 		
+		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
+			game.setScreen(new MainMenu(game));
+		}
+		
+		if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.UP) ) {
+			// move up
+			camera.position.y+=10;
+		}
+		if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN)) {
+			// move down
+			camera.position.y-=10;
+		}
+		if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
+			// move left
+			camera.position.x-=10;
+		}
+		if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
+			// move right
+			camera.position.x+=10;
+		}
+		
 		if(mapLoaded) {
 			Gdx.gl.glClearColor(0.55f, 0.55f, 0.55f, 1f);
 			Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -80,15 +101,14 @@ public class GameScreen extends UTrilliumScreen {
 			renderer.render(camera,layers);
 			batch.begin();
 			font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20); 
+			font.draw(batch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y, 10, 50); 
 			batch.end();
 		} else {
 			Gdx.gl.glClearColor(1.0f, 0.0f, 0.0f, 1);
 			Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);			
 		}
 		
-		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
-			game.setScreen(new MainMenu(game));
-		}
+		
 	}
 	
 
