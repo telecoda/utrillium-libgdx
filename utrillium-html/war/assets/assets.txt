@@ -1,0 +1,17 @@
+d:war/
+d:data
+i:data/title.png
+b:data/intro.xcf
+d:data/level01tileset
+i:data/level01tileset/metatiles64x64.png
+i:data/level01tileset/level01leveltiles.png
+b:data/level01tileset/main_tileset.xcf
+b:data/title.xcf
+b:data/level01.tmx
+i:data/libgdx.png
+i:data/intro.png
+d:data/sprites
+i:data/sprites/plane.png
+i:data/sprites/basic_gun.png
+i:data/sprites/1945.png
+i:data/sprites/bullet01.png

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<module rename-to="com.badlogic.gdx">
-	<inherits name="com.esotericsoftware.tablelayout"/>
-	<source path="gdx">
-		<include name="src/com/rsb/utrillium/UTrillium.java"/>
-		<include name="graphics/g2d/Animation.java"/>
-		<include name="graphics/g3d/Animation.java"/>
-	</source>
-</module>

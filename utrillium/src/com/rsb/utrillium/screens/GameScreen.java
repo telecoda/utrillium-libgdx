@@ -71,7 +71,7 @@ public class GameScreen extends UTrilliumScreen {
 		String levelFile = "data/level01.tmx";
 		map = TiledLoader.createMap(Gdx.files.internal(levelFile));
 		if(map == null) {
-			String errorMsg = String.format("Failed to load map %s", levelFile);
+			String errorMsg = "Failed to load map "+ levelFile;
 			Gdx.app.error("UTrillium.GameScreen", errorMsg);
 		}
 		

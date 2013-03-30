@@ -4,8 +4,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/utrillium"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/utrillium/libs/gdx.jar" sourcepath="/utrillium/libs/gdx-sources.jar"/>
-	<classpathentry kind="lib" path="/utrillium/libs/gdx-sources.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gdx"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gdx-backends-gwt"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
