@@ -12,21 +12,33 @@ import com.badlogic.gdx.graphics.g2d.tiled.SimpleTileAtlas;
 import com.badlogic.gdx.graphics.g2d.tiled.TileMapRenderer;
 import com.badlogic.gdx.graphics.g2d.tiled.TiledLoader;
 import com.badlogic.gdx.graphics.g2d.tiled.TiledMap;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
 public class GameScreen extends UTrilliumScreen {
-	TiledMap map;
 	
-	SimpleTileAtlas atlas;
+	private TiledMap map;
 	
-	TileMapRenderer renderer;
+	private SimpleTileAtlas atlas;
 	
-	SpriteBatch spriteBatch = new SpriteBatch();
+	private TileMapRenderer renderer;
 	
-	OrthographicCamera camera = new OrthographicCamera();
-	BitmapFont font;
-	SpriteBatch batch;
-	int[] layers = {0};
+	private SpriteBatch spriteBatch = new SpriteBatch();
+	private ShapeRenderer shapeRenderer = new ShapeRenderer();
+	
+	private OrthographicCamera camera = new OrthographicCamera();
+	private BitmapFont font;
+	private SpriteBatch batch;
+	private int[] layers = {0};
 
+	private float cx;
+	private float cy;
+	
+	private int currentWidth;
+	private int currentHeight;
+	
+	private int mapWidth;
+	private int mapHeight;
 	
 	boolean mapLoaded=false;
 	
@@ -72,26 +84,16 @@ public class GameScreen extends UTrilliumScreen {
 	@Override
 	public void render (float delta) {
 		
-		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
-			game.setScreen(new MainMenu(game));
-		}
+		currentWidth = Gdx.graphics.getWidth();
+		currentHeight = Gdx.graphics.getHeight();
 		
-		if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.UP) ) {
-			// move up
-			camera.position.y+=10;
-		}
-		if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN)) {
-			// move down
-			camera.position.y-=10;
-		}
-		if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
-			// move left
-			camera.position.x-=10;
-		}
-		if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
-			// move right
-			camera.position.x+=10;
-		}
+		mapWidth = renderer.getMapWidthUnits();
+		mapHeight = renderer.getMapHeightUnits();
+		
+		cx = currentWidth/2;
+		cy = currentHeight/2;
+		
+		processInput();
 		
 		if(mapLoaded) {
 			Gdx.gl.glClearColor(0.55f, 0.55f, 0.55f, 1f);
@@ -99,16 +101,66 @@ public class GameScreen extends UTrilliumScreen {
 			camera.update();
 			
 			renderer.render(camera,layers);
-			batch.begin();
-			font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20); 
-			font.draw(batch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y, 10, 50); 
-			batch.end();
+			renderCoordinates();
+			
+			renderCameraCursor();
+			
 		} else {
 			Gdx.gl.glClearColor(1.0f, 0.0f, 0.0f, 1);
 			Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);			
 		}
 		
 		
+	}
+
+	private void processInput() {
+		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
+			game.setScreen(new MainMenu(game));
+		}
+		
+		if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.UP) ) {
+			// move up
+			if(camera.position.y <= (mapHeight-cy) ) {
+				camera.position.y+=10;
+			}
+		}
+		if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN)) {
+			// move down
+			if(camera.position.y >= cy ) {
+				camera.position.y-=10;
+			}
+		}
+		if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
+			// move left
+			if(camera.position.x >= cx ) {
+				camera.position.x-=10;
+			}
+		}
+		if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
+			// move right
+			if(camera.position.x <= (mapWidth-cx) ) {
+				camera.position.x+=10;
+			} 
+		}
+	}
+
+	private void renderCoordinates() {
+		batch.begin();
+		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20); 
+		font.draw(batch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y+ " mapWidth: "+ mapWidth + " mapHeight: " +mapHeight, 10, 50); 
+		font.draw(batch, "cx: " + cx +" , cy: "+ cy + " screenWidth: "+ currentWidth + " screenHeight: " +currentHeight, 10, 70); 
+		batch.end();
+	}
+
+	private void renderCameraCursor() {
+		shapeRenderer.setProjectionMatrix(camera.combined);
+		shapeRenderer.begin(ShapeType.Line);
+		shapeRenderer.setColor(1, 1, 0, 1);
+		shapeRenderer.line(camera.position.x, camera.position.y, camera.position.x+10, camera.position.y);
+		shapeRenderer.line(camera.position.x, camera.position.y, camera.position.x-10, camera.position.y);
+		shapeRenderer.line(camera.position.x, camera.position.y, camera.position.x, camera.position.y+10);
+		shapeRenderer.line(camera.position.x, camera.position.y, camera.position.x, camera.position.y-10);
+		shapeRenderer.end();
 	}
 	
 
