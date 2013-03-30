@@ -3,6 +3,8 @@
 	<name>utrillium-html</name>
 	<comment></comment>
 	<projects>
+		<project>gdx</project>
+		<project>gdx-backends-gwt</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

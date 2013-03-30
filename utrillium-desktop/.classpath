@@ -4,8 +4,7 @@
 	<classpathentry kind="src" path="assets"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/utrillium"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="libs/gdx-backend-lwjgl.jar" sourcepath="/home/rob/Development/libgdx/sources/gdx-backend-lwjgl-sources.jar"/>
-	<classpathentry kind="lib" path="libs/gdx-backend-lwjgl-natives.jar"/>
-	<classpathentry kind="lib" path="libs/gdx-natives.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gdx"/>
+	<classpathentry kind="src" path="/gdx-backend-lwjgl"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

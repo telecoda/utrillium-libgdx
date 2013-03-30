@@ -3,6 +3,7 @@
 	<name>utrillium-desktop</name>
 	<comment></comment>
 	<projects>
+		<project>gdx</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
