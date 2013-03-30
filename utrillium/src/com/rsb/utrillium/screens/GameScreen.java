@@ -6,7 +6,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.tiled.SimpleTileAtlas;
 import com.badlogic.gdx.graphics.g2d.tiled.TileMapRenderer;
@@ -23,12 +25,14 @@ public class GameScreen extends UTrilliumScreen {
 	
 	private TileMapRenderer renderer;
 	
-	private SpriteBatch spriteBatch = new SpriteBatch();
 	private ShapeRenderer shapeRenderer = new ShapeRenderer();
 	
 	private OrthographicCamera camera = new OrthographicCamera();
 	private BitmapFont font;
-	private SpriteBatch batch;
+	private SpriteBatch spriteBatch;
+	private Texture planeTexture;
+	private Sprite planeSprite;
+	
 	private int[] layers = {0};
 
 	private float cx;
@@ -61,7 +65,7 @@ public class GameScreen extends UTrilliumScreen {
 
 		
 		font = new BitmapFont();
-		batch = new SpriteBatch();
+		spriteBatch = new SpriteBatch();
 
 		// load map
 		String levelFile = "data/level01.tmx";
@@ -76,7 +80,11 @@ public class GameScreen extends UTrilliumScreen {
 		renderer = new TileMapRenderer(map, atlas, 32, 32);
 
 		Gdx.app.debug("UTrillium", "map loaded");
+		
+		// load sprites
+		planeTexture = new Texture(Gdx.files.internal("data/sprites/plane.png")); 
 
+		planeSprite = new Sprite(planeTexture);
 		this.mapLoaded = true;
 	}
 
@@ -103,6 +111,8 @@ public class GameScreen extends UTrilliumScreen {
 			renderer.render(camera,layers);
 			renderCoordinates();
 			
+			renderPlane();
+			
 			renderCameraCursor();
 			
 		} else {
@@ -122,34 +132,53 @@ public class GameScreen extends UTrilliumScreen {
 			// move up
 			if(camera.position.y <= (mapHeight-cy) ) {
 				camera.position.y+=10;
+				planeSprite.setRotation(90);
 			}
 		}
 		if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN)) {
 			// move down
 			if(camera.position.y >= cy ) {
 				camera.position.y-=10;
+				planeSprite.setRotation(-90);
 			}
 		}
 		if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
 			// move left
 			if(camera.position.x >= cx ) {
 				camera.position.x-=10;
+				planeSprite.setRotation(-180);
+
 			}
 		}
 		if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
 			// move right
 			if(camera.position.x <= (mapWidth-cx) ) {
 				camera.position.x+=10;
+				planeSprite.setRotation(0);
+
 			} 
 		}
 	}
 
+	private void renderPlane() {
+		spriteBatch.begin();
+		
+		planeSprite.setPosition(camera.position.x-planeTexture.getWidth()/2, camera.position.y-planeTexture.getHeight()/2);
+		
+		spriteBatch.setProjectionMatrix(camera.combined);
+		planeSprite.draw(spriteBatch);
+		//spriteBatch.draw(planeTexture, camera.position.x-planeTexture.getWidth()/2, camera.position.y-planeTexture.getHeight()/2);
+		
+		spriteBatch.end();
+	}
+	
 	private void renderCoordinates() {
-		batch.begin();
-		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20); 
-		font.draw(batch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y+ " mapWidth: "+ mapWidth + " mapHeight: " +mapHeight, 10, 50); 
-		font.draw(batch, "cx: " + cx +" , cy: "+ cy + " screenWidth: "+ currentWidth + " screenHeight: " +currentHeight, 10, 70); 
-		batch.end();
+		spriteBatch.begin();
+		spriteBatch.setProjectionMatrix(camera.combined);
+		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20); 
+		font.draw(spriteBatch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y+ " mapWidth: "+ mapWidth + " mapHeight: " +mapHeight, 10, 50); 
+		font.draw(spriteBatch, "cx: " + cx +" , cy: "+ cy + " screenWidth: "+ currentWidth + " screenHeight: " +currentHeight, 10, 70); 
+		spriteBatch.end();
 	}
 
 	private void renderCameraCursor() {
