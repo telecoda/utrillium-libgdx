@@ -20,9 +20,9 @@ public class IntroScreen extends UTrilliumScreen {
 
 	@Override
 	public void show () {
-		intro = new TextureRegion(new Texture(Gdx.files.internal("data/intro.png")), 0, 0, 480, 320);
+		intro = new TextureRegion(new Texture(Gdx.files.internal("data/intro.png")), 0, 0, 640, 512);
 		batch = new SpriteBatch();
-		batch.getProjectionMatrix().setToOrtho2D(0, 0, 480, 320);
+		batch.getProjectionMatrix().setToOrtho2D(0, 0, 640, 512);
 	}
 
 	@Override
