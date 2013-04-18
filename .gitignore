@@ -7,4 +7,4 @@
 */bin/*
 */libs/*
 utrillium-html/gwt-unitCache
-utrillium-html/war/WEB-INF/classes
+utrillium-html/war/**
