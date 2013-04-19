@@ -1,8 +1,9 @@
 
-package com.rsb.utrillium.screens;
+package com.rsb.utrillium.views;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -16,8 +17,11 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.rsb.utrillium.models.Player;
 
 public class GameScreen extends UTrilliumScreen {
+	
+	private Player player;
 	
 	private TiledMap map;
 	
@@ -62,16 +66,10 @@ public class GameScreen extends UTrilliumScreen {
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 
-		//camera = new OrthographicCamera();
-		//camera.setToOrtho(false, (w / h) * 512, 512);
-		//camera.update();
-
 		// create an orthographic camera, shows us 30x20 units of the world
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 640, 512);
+		camera.setToOrtho(false, w, h);
 		camera.update();
-				
-		
 		
 		font = new BitmapFont();
 	
@@ -79,6 +77,9 @@ public class GameScreen extends UTrilliumScreen {
 		// load the map, set the unit scale to 1/16 (1 unit == 64 pixels)
 		map = new TmxMapLoader().load("data/level01.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map, 1 / 1f);
+		
+		// init player
+		player = new Player(map,128+32,128+32);
 				
 		
 		if(map == null) {
@@ -106,39 +107,20 @@ public class GameScreen extends UTrilliumScreen {
 	@Override
 	public void render (float delta) {
 		
-		/*currentWidth = Gdx.graphics.getWidth();
+		currentWidth = Gdx.graphics.getWidth();
 		currentHeight = Gdx.graphics.getHeight();
 		
-		mapWidth = renderer.getMapWidthUnits();
-		mapHeight = renderer.getMapHeightUnits();
+		//mapWidth = renderer.getMapWidthUnits();
+		//mapHeight = renderer.getMapHeightUnits();
 		
 		cx = currentWidth/2;
 		cy = currentHeight/2;
 		
-		world.step(delta, 1, 1);
+		//world.step(delta, 1, 1);
 		
 		
-		//processInput();
-		
-		if(mapLoaded) {
-			Gdx.gl.glClearColor(0.55f, 0.55f, 0.55f, 1f);
-			Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-			camera.update();
-			
-			renderer.render(camera,layers);
-			renderCoordinates();
-			
-			renderPlane();
-			
-			renderCameraCursor();
-			
-		} else {
-			Gdx.gl.glClearColor(1.0f, 0.0f, 0.0f, 1);
-			Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);			
-		}
-		
-		*/
-		
+		processInput();
+				
 		// clear the screen
 		Gdx.gl.glClearColor(0.7f, 0.7f, 1.0f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -146,32 +128,46 @@ public class GameScreen extends UTrilliumScreen {
 		// get the delta time
 		float deltaTime = Gdx.graphics.getDeltaTime();
 		
-		// update the koala (process input, collision detection, position update)
+		// update the Utrillium game objects (process input, collision detection, position update)
+		player.update(deltaTime);
 		updateUtrillium(deltaTime);
 		
-		// let the camera follow the koala, x-axis only
-		//camera.position.x = koala.position.x;
+		renderMap();
+		
+		
+		renderPlane();
+		
+		renderCameraCursor();
+		
+		renderCoordinates();
+		
+	}
+
+	private void renderMap() {
+		// let the camera follow the plane
+		
+		camera.position.x = player.position.x;
+		camera.position.y = player.position.y;
 		camera.update();
 		
 		// set the tile map rendere view based on what the
 		// camera sees and render the map
 		renderer.setView(camera);
 		renderer.render();
-		
-		// render the koala
-		//renderUtrillium(deltaTime);
-		renderCoordinates();
-		
-		renderPlane();
-		
-		renderCameraCursor();
-		
-		
 	}
 
 	private void updateUtrillium(float deltaTime) {
 		if(deltaTime == 0) return;
-		this.stateTime += deltaTime;	
+		this.stateTime += deltaTime;
+	}
+	
+	private void processInput() {
+		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
+			game.setScreen(new MainMenu(game));
+		}
+		
+	}
+
 		
 		/*
 		// check input and apply to velocity & state
@@ -277,66 +273,31 @@ public class GameScreen extends UTrilliumScreen {
 		
 	}
 
-	private void processInput() {
-		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
-			game.setScreen(new MainMenu(game));
-		}
-		
-		if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.UP) ) {
-			// move up
-			if(camera.position.y <= (mapHeight-cy) ) {
-				camera.position.y+=10;
-				planeSprite.setRotation(90);
-			}
-		}
-		if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN)) {
-			// move down
-			if(camera.position.y >= cy ) {
-				camera.position.y-=10;
-				planeSprite.setRotation(-90);
-			}
-		}
-		if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
-			// move left
-			if(camera.position.x >= cx ) {
-				camera.position.x-=10;
-				planeSprite.setRotation(-180);
-
-			}
-		}
-		if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
-			// move right
-			if(camera.position.x <= (mapWidth-cx) ) {
-				camera.position.x+=10;
-				planeSprite.setRotation(0);
-
-			} 
-		}
-		*/
-	}
+	*/
 
 	private void renderPlane() {
 
-		//spriteBatch.setProjectionMatrix(camera.projection);
-
+		spriteBatch = renderer.getSpriteBatch();
 		spriteBatch.begin();
 		
 		planeSprite.setPosition(camera.position.x-planeTexture.getWidth()/2, camera.position.y-planeTexture.getHeight()/2);
-		
-		//spriteBatch.setProjectionMatrix(camera.combined);
+		planeSprite.setRotation(player.rotation);
 		planeSprite.draw(spriteBatch);
-		//spriteBatch.draw(planeTexture, camera.position.x-planeTexture.getWidth()/2, camera.position.y-planeTexture.getHeight()/2);
+		
 		
 		spriteBatch.end();
 	}
 	
 	private void renderCoordinates() {
 		spriteBatch = renderer.getSpriteBatch();
+		int fontX = (int) (camera.position.x - cx);
+		int fontY = (int) (camera.position.y + cy);
+//		spriteBatch.setTransformMatrix(camera.combined);
 		spriteBatch.begin();
 		//spriteBatch.setProjectionMatrix(camera.combined);
-		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20); 
-		font.draw(spriteBatch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y+ " mapWidth: "+ mapWidth + " mapHeight: " +mapHeight, 10, 50); 
-		font.draw(spriteBatch, "cx: " + cx +" , cy: "+ cy + " screenWidth: "+ currentWidth + " screenHeight: " +currentHeight, 10, 70); 
+		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), fontX+10, fontY-20); 
+		font.draw(spriteBatch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y+ " mapWidth: "+ mapWidth + " mapHeight: " +mapHeight, fontX+10, fontY-40); 
+		font.draw(spriteBatch, "cx: " + cx +" , cy: "+ cy + " screenWidth: "+ currentWidth + " screenHeight: " +currentHeight, fontX+10, fontY-60); 
 		spriteBatch.end();
 	}
 

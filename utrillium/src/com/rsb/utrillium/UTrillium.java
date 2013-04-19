@@ -1,8 +1,7 @@
 package com.rsb.utrillium;
 
 import com.badlogic.gdx.Game;
-import com.rsb.utrillium.screens.MainMenu;
-
+import com.rsb.utrillium.views.MainMenu;
 
 public class UTrillium extends Game {
 	

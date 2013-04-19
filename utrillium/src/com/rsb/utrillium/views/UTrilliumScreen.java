@@ -1,5 +1,5 @@
 
-package com.rsb.utrillium.screens;
+package com.rsb.utrillium.views;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
