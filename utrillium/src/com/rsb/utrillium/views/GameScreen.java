@@ -4,10 +4,12 @@ package com.rsb.utrillium.views;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.BitmapFontData;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -71,7 +73,10 @@ public class GameScreen extends UTrilliumScreen {
 		camera.setToOrtho(false, w, h);
 		camera.update();
 		
-		font = new BitmapFont();
+		//font = new BitmapFont();
+		BitmapFontData fontData = new BitmapFontData();
+		
+		font = new BitmapFont (Gdx.files.internal("data/fonts/arial-15.fnt"),Gdx.files.internal("data/fonts/arial-15.png"), false, true);
 	
 		
 		// load the map, set the unit scale to 1/16 (1 unit == 64 pixels)
