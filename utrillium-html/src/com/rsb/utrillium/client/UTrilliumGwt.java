@@ -8,7 +8,7 @@ import com.rsb.utrillium.UTrillium;
 public class UTrilliumGwt extends GwtApplication {
 	@Override
 	public GwtApplicationConfiguration getConfig () {
-		GwtApplicationConfiguration cfg = new GwtApplicationConfiguration(480, 320);
+		GwtApplicationConfiguration cfg = new GwtApplicationConfiguration(640, 512);
 		return cfg;
 	}
 
