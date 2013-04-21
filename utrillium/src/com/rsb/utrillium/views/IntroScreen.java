@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.rsb.utrillium.UTrilliumConst;
 
-public class IntroScreen extends UTrilliumScreen {
+public class IntroScreen extends BaseGameScreen {
 	TextureRegion intro;
 	SpriteBatch batch;
 	float time = 0;
@@ -36,7 +36,7 @@ public class IntroScreen extends UTrilliumScreen {
 		time += delta;
 		if (time > 1) {
 			if (Gdx.input.isKeyPressed(Keys.ANY_KEY) || Gdx.input.justTouched()) {
-				game.setScreen(new GameScreen(game));
+				game.setScreen(new GamePlayScreen(game));
 			}
 		}
 	}

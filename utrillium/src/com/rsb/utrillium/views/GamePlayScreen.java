@@ -24,7 +24,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.rsb.physics.MapBodyManager;
 import com.rsb.utrillium.models.Player;
 
-public class GameScreen extends UTrilliumScreen {
+public class GamePlayScreen extends BaseGameScreen {
 	
 	private Player player;
 	
@@ -59,7 +59,7 @@ public class GameScreen extends UTrilliumScreen {
 	
 	boolean mapLoaded=false;
 	
-	public GameScreen (Game game) {
+	public GamePlayScreen (Game game) {
 		super(game);
 		
 	}

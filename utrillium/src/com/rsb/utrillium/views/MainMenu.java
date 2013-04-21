@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.rsb.utrillium.UTrilliumConst;
 
-public class MainMenu extends UTrilliumScreen {
+public class MainMenu extends BaseGameScreen {
 	TextureRegion title;
 	SpriteBatch batch;
 	float time = 0;

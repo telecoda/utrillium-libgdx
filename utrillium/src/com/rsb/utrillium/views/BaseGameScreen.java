@@ -4,10 +4,10 @@ package com.rsb.utrillium.views;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 
-public abstract class UTrilliumScreen implements Screen {
+public abstract class BaseGameScreen implements Screen {
 	Game game;
 
-	public UTrilliumScreen (Game game) {
+	public BaseGameScreen (Game game) {
 		this.game = game;
 	}
 
