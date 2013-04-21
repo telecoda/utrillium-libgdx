@@ -21,7 +21,7 @@ public class IntroScreen extends UTrilliumScreen {
 
 	@Override
 	public void show () {
-		intro = new TextureRegion(new Texture(Gdx.files.internal("data/intro.png")), 0, 0, UTrilliumConst.SCREEN_WIDTH, UTrilliumConst.SCREEN_WIDTH);
+		intro = new TextureRegion(new Texture(Gdx.files.internal("data/intro.png")), 0, 0, 512, 256);
 		batch = new SpriteBatch();
 		batch.getProjectionMatrix().setToOrtho2D(0, 0, UTrilliumConst.SCREEN_WIDTH, UTrilliumConst.SCREEN_HEIGHT);
 	}
@@ -30,7 +30,7 @@ public class IntroScreen extends UTrilliumScreen {
 	public void render (float delta) {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-		batch.draw(intro, 0, 0);
+		batch.draw(intro, 0, 0,UTrilliumConst.SCREEN_WIDTH, UTrilliumConst.SCREEN_HEIGHT);
 		batch.end();
 
 		time += delta;
