@@ -17,8 +17,11 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.rsb.physics.MapBodyManager;
 import com.rsb.utrillium.models.Player;
 
 public class GameScreen extends UTrilliumScreen {
@@ -31,7 +34,12 @@ public class GameScreen extends UTrilliumScreen {
 	private OrthographicCamera camera;
 	
 	private World world = new World(new Vector2(0,0),true);
-	//private MapBodyManager mapBodyManager;
+	private MapBodyManager mapBodyManager;
+	private Box2DDebugRenderer debugRenderer;
+	private Matrix4 debugMatrix;
+
+	private boolean renderPhysicsBodies=false;
+	private boolean renderMapTiles=true;
 	
 	private ShapeRenderer shapeRenderer = new ShapeRenderer();
 	
@@ -40,8 +48,6 @@ public class GameScreen extends UTrilliumScreen {
 	private Texture planeTexture;
 	private Sprite planeSprite;
 	
-	private int[] layers = {0};
-
 	private float cx;
 	private float cy;
 	
@@ -50,8 +56,6 @@ public class GameScreen extends UTrilliumScreen {
 	
 	private int mapWidth;
 	private int mapHeight;
-	
-	private float stateTime = 0;
 	
 	boolean mapLoaded=false;
 	
@@ -73,9 +77,6 @@ public class GameScreen extends UTrilliumScreen {
 		camera.setToOrtho(false, w, h);
 		camera.update();
 		
-		//font = new BitmapFont();
-		BitmapFontData fontData = new BitmapFontData();
-		
 		font = new BitmapFont (Gdx.files.internal("data/fonts/arial-15.fnt"),Gdx.files.internal("data/fonts/arial-15.png"), false, true);
 	
 		
@@ -94,9 +95,12 @@ public class GameScreen extends UTrilliumScreen {
 		
 		
 		// create Box2D physics world
-		//mapBodyManager = new MapBodyManager(world, 1.0f, 0);
-		//mapBodyManager.createPhysics(map, 1);
+		mapBodyManager = new MapBodyManager(world, 1.0f, "data/materials.xml", 0);
+		mapBodyManager.createPhysics(map, "physics");
 
+		
+		 
+		debugRenderer=new Box2DDebugRenderer();
 
 
 		Gdx.app.debug("UTrillium", "map loaded");
@@ -137,10 +141,14 @@ public class GameScreen extends UTrilliumScreen {
 		player.update(deltaTime);
 		updateUtrillium(deltaTime);
 		
+		// let the camera follow the plane		
+		moveCameraRelativeToPlayer();
+		
 		renderMap();
 		
-		
 		renderPlane();
+		
+		renderDebugBox2d();
 		
 		renderCameraCursor();
 		
@@ -148,22 +156,41 @@ public class GameScreen extends UTrilliumScreen {
 		
 	}
 
-	private void renderMap() {
-		// let the camera follow the plane
+	private void renderDebugBox2d() {
 		
+		if(renderPhysicsBodies) {
+			//Create a copy of camera projection matrix
+		    debugMatrix=new Matrix4(camera.combined);
+		 
+			debugMatrix.scale(1f/1f, 1f/1f, 1f);
+			
+			spriteBatch.begin();
+	        //BoxObjectManager.GetWorld() gets the reference to Box2d World object
+			debugRenderer.render(world, debugMatrix);
+			spriteBatch.end();
+		}
+	}
+
+	private void renderMap() {
+		
+		if(renderMapTiles) {
+			
+			renderer.render();
+		}
+	}
+
+	private void moveCameraRelativeToPlayer() {
 		camera.position.x = player.position.x;
 		camera.position.y = player.position.y;
 		camera.update();
-		
-		// set the tile map rendere view based on what the
+		// set the tile map render view based on what the
 		// camera sees and render the map
 		renderer.setView(camera);
-		renderer.render();
 	}
 
 	private void updateUtrillium(float deltaTime) {
 		if(deltaTime == 0) return;
-		this.stateTime += deltaTime;
+		//this.stateTime += deltaTime;
 	}
 	
 	private void processInput() {
@@ -171,114 +198,18 @@ public class GameScreen extends UTrilliumScreen {
 			game.setScreen(new MainMenu(game));
 		}
 		
+		// toggle map rendering
+		if (Gdx.input.isKeyPressed(Keys.M)) {
+			renderMapTiles = !renderMapTiles;
+		}
+
+		// toggle physics bodies rendering
+		if (Gdx.input.isKeyPressed(Keys.B)) {
+			renderPhysicsBodies = !renderPhysicsBodies;
+		}
+
 	}
 
-		
-		/*
-		// check input and apply to velocity & state
-		if((Gdx.input.isKeyPressed(Keys.SPACE) || isTouched(0.75f, 1)) && koala.grounded) {
-			koala.velocity.y += Koala.JUMP_VELOCITY;
-			koala.state = Koala.State.Jumping;
-			koala.grounded = false;
-		}
-		
-		if(Gdx.input.isKeyPressed(Keys.LEFT) || Gdx.input.isKeyPressed(Keys.A) || isTouched(0, 0.25f)) {
-			koala.velocity.x = -Koala.MAX_VELOCITY;
-			if(koala.grounded) koala.state = Koala.State.Walking;
-			koala.facesRight = false;
-		}
-		
-		if(Gdx.input.isKeyPressed(Keys.RIGHT) || Gdx.input.isKeyPressed(Keys.D) || isTouched(0.25f, 0.5f)) {
-			koala.velocity.x = Koala.MAX_VELOCITY;
-			if(koala.grounded) koala.state = Koala.State.Walking;
-			koala.facesRight = true;
-		}
-		
-		// apply gravity if we are falling
-		koala.velocity.add(0, GRAVITY);
-		
-		// clamp the velocity to the maximum, x-axis only
-		if(Math.abs(koala.velocity.x) > Koala.MAX_VELOCITY) {
-			koala.velocity.x = Math.signum(koala.velocity.x) * Koala.MAX_VELOCITY;
-		}
-		
-		// clamp the velocity to 0 if it's < 1, and set the state to standign
-		if(Math.abs(koala.velocity.x) < 1) {
-			koala.velocity.x = 0;
-			if(koala.grounded) koala.state = Koala.State.Standing;
-		}
-		
-		// multiply by delta time so we know how far we go
-		// in this frame
-		koala.velocity.scl(deltaTime);
-		
-		// perform collision detection & response, on each axis, separately
-		// if the koala is moving right, check the tiles to the right of it's
-		// right bounding box edge, otherwise check the ones to the left
-		Rectangle koalaRect = rectPool.obtain();
-		koalaRect.set(koala.position.x, koala.position.y, Koala.WIDTH, Koala.HEIGHT);
-		int startX, startY, endX, endY;
-		if(koala.velocity.x > 0) {
-			startX = endX = (int)(koala.position.x + Koala.WIDTH + koala.velocity.x);
-		} else {
-			startX = endX = (int)(koala.position.x + koala.velocity.x);
-		}
-		startY = (int)(koala.position.y);
-		endY = (int)(koala.position.y + Koala.HEIGHT);
-		getTiles(startX, startY, endX, endY, tiles);
-		koalaRect.x += koala.velocity.x;
-		for(Rectangle tile: tiles) {
-			if(koalaRect.overlaps(tile)) {
-				koala.velocity.x = 0;
-				break;
-			}
-		}
-		koalaRect.x = koala.position.x;
-		
-		// if the koala is moving upwards, check the tiles to the top of it's
-		// top bounding box edge, otherwise check the ones to the bottom
-		if(koala.velocity.y > 0) {
-			startY = endY = (int)(koala.position.y + Koala.HEIGHT + koala.velocity.y);
-		} else {
-			startY = endY = (int)(koala.position.y + koala.velocity.y);
-		}
-		startX = (int)(koala.position.x);
-		endX = (int)(koala.position.x + Koala.WIDTH);
-		getTiles(startX, startY, endX, endY, tiles);
-		koalaRect.y += koala.velocity.y;
-		for(Rectangle tile: tiles) {
-			if(koalaRect.overlaps(tile)) {
-				// we actually reset the koala y-position here
-				// so it is just below/above the tile we collided with
-				// this removes bouncing :)
-				if(koala.velocity.y > 0) {
-					koala.position.y = tile.y - Koala.HEIGHT;
-					// we hit a block jumping upwards, let's destroy it!
-					TiledMapTileLayer layer = (TiledMapTileLayer)map.getLayers().get(1);
-					layer.setCell((int)tile.x, (int)tile.y, null);
-				} else {
-					koala.position.y = tile.y + tile.height;
-					// if we hit the ground, mark us as grounded so we can jump
-					koala.grounded = true;
-				}
-				koala.velocity.y = 0;
-				break;
-			}
-		}
-		rectPool.free(koalaRect);
-		
-		// unscale the velocity by the inverse delta time and set 
-		// the latest position
-		koala.position.add(koala.velocity);
-		koala.velocity.scl(1/deltaTime);
-		
-		// Apply damping to the velocity on the x-axis so we don't
-		// walk infinitely once a key was pressed
-		koala.velocity.x *= Koala.DAMPING;
-		
-	}
-
-	*/
 
 	private void renderPlane() {
 
