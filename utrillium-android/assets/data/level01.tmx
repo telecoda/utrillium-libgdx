@@ -37,7 +37,7 @@
   </data>
  </layer>
  <objectgroup name="physics" width="48" height="48">
-  <object name="mainPlayer" x="192" y="2880" width="64" height="64">
+  <object name="mainPlayer" type="player" x="192" y="2880" width="64" height="64">
    <properties>
     <property name="gravity" value="0"/>
     <property name="image" value="plane"/>
