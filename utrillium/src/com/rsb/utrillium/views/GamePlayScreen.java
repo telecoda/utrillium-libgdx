@@ -1,6 +1,8 @@
 
 package com.rsb.utrillium.views;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -14,11 +16,17 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapLayers;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.rsb.physics.MapBodyManager;
@@ -74,7 +82,7 @@ public class GamePlayScreen extends BaseGameScreen {
 				
 		initCurrentLevelMap();
 
-		initPlayerFromMap();
+		initPlayer();
 		// load sprites
 		initSprites();
 	}
@@ -111,9 +119,32 @@ public class GamePlayScreen extends BaseGameScreen {
 
 	}
 	
-	private void initPlayerFromMap() {
-		// init player
-		player = new Player(map,128+32,128+32);
+	private void initPlayer() {
+		
+		// get reference to physics body for player
+		Iterator<Body> bodies = world.getBodies();
+		
+		while(bodies.hasNext()){
+			Body body = bodies.next();
+			// find mainPlayer body
+			MapProperties properties = (MapProperties)body.getUserData();
+			
+			if(properties!=null) {
+				String propertyName = properties.get("name", "no name", String.class);
+				if(propertyName.equals("mainPlayer")) {
+					// found main player!
+					int x = (Integer) properties.get("x");
+					int y= (Integer) properties.get("y");
+
+					player = new Player(body,x+32,y+32);
+					return;
+
+				}
+			}
+			
+		}
+	
+		throw new RuntimeException("mainPlayer definition not found in map! Cannot continue.");
 
 	}
 

@@ -6,6 +6,7 @@ import com.badlogic.gdx.maps.Map;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.rsb.utrillium.UTrilliumConst;
 
 public class Player extends GameModel {
@@ -32,11 +33,12 @@ public class Player extends GameModel {
 	MapProperties mapProps;
 	int mapHeight,mapWidth=0;
 	boolean grounded = false;
-
-	public Player (Map map, float x, float y) {
-		processMapProps(map);
+	Body physicsBody;
+	
+	public Player (Body body, float x, float y) {
 		position.x = x;
 		position.y = y;
+		physicsBody = body;
 		bounds.width = 0.6f;
 		bounds.height = 0.8f;
 		bounds.x = position.x + 0.2f;

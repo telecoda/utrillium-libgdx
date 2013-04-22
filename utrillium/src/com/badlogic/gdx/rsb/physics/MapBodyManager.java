@@ -133,7 +133,11 @@ public class MapBodyManager {
 			}
 			
 			MapProperties properties = object.getProperties();
+			// add name to properties to store in body's userData
+			properties.put("name", object.getName());
 			String material = properties.get("material", "default", String.class);
+			String bodyType = properties.get("bodyType", "StaticBody", String.class);
+			
 			FixtureDef fixtureDef = m_materials.get(material);
 			
 			if (fixtureDef == null) {
@@ -144,11 +148,15 @@ public class MapBodyManager {
 			fixtureDef.shape = shape;
 			
 			BodyDef bodyDef = new BodyDef();
-			bodyDef.type = BodyDef.BodyType.StaticBody;
-			
+			if(bodyType.equals("StaticBody")) {
+				bodyDef.type = BodyDef.BodyType.StaticBody;				
+			}
+			if(bodyType.equals("DynamicBody")) {
+				bodyDef.type = BodyDef.BodyType.DynamicBody;
+			}
 			Body body = m_world.createBody(bodyDef);
 			body.createFixture(fixtureDef);
-			
+			body.setUserData(properties);
 			m_bodies.add(body);
 			
 			fixtureDef.shape = null;
