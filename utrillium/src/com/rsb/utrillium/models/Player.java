@@ -63,29 +63,6 @@ public class Player extends GameModel {
 		
 		processInput();
 
-		/*
-		acceleration.y = -GRAVITY;
-		acceleration.scl(deltaTime);
-		velocity.add(acceleration.x, acceleration.y);
-		if (acceleration.x == 0) velocity.x *= DAMP;
-		if (velocity.x > MAX_VEL) velocity.x = MAX_VEL;
-		if (velocity.x < -MAX_VEL) velocity.x = -MAX_VEL;
-		velocity.scl(deltaTime);
-		//tryMove();
-		velocity.scl(1.0f / deltaTime);
-
-		if (state == SPAWN) {
-			if (stateTime > 0.4f) {
-				state = IDLE;
-			}
-		}
-
-		if (state == DYING) {
-			if (stateTime > 0.4f) {
-				state = DEAD;
-			}
-		}
-*/
 		stateTime += deltaTime;
 	}
 

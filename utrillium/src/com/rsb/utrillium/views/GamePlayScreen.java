@@ -43,7 +43,8 @@ public class GamePlayScreen extends BaseGameScreen {
 	
 	private ShapeRenderer shapeRenderer = new ShapeRenderer();
 	
-	private BitmapFont font;
+	private BitmapFont font = new BitmapFont (Gdx.files.internal("data/fonts/arial-15.fnt"),Gdx.files.internal("data/fonts/arial-15.png"), false, true);
+
 	private SpriteBatch spriteBatch;
 	private Texture planeTexture;
 	private Sprite planeSprite;
@@ -51,8 +52,8 @@ public class GamePlayScreen extends BaseGameScreen {
 	private float cx;
 	private float cy;
 	
-	private int currentWidth;
-	private int currentHeight;
+	private int currentScreenWidth;
+	private int currentScreenHeight;
 	
 	private int mapWidth;
 	private int mapHeight;
@@ -67,79 +68,80 @@ public class GamePlayScreen extends BaseGameScreen {
 	@Override
 	public void show () {
 
+		// This method is called when screen becomes "current screen"
+		// initialise everything for next call of render() method
+		initCamera();
+				
+		initCurrentLevelMap();
+
+		initPlayerFromMap();
+		// load sprites
+		initSprites();
+	}
+
+	private void initCamera() {
+		updateScreenDimensions();
+
+		camera = new OrthographicCamera();		
+		camera.setToOrtho(false, currentScreenWidth, currentScreenHeight);
+		camera.update();
+	}
+
+	private void initCurrentLevelMap() {
 		Gdx.app.debug("UTrillium", "loading map");
 
-		float w = Gdx.graphics.getWidth();
-		float h = Gdx.graphics.getHeight();
-
-		// create an orthographic camera, shows us 30x20 units of the world
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, w, h);
-		camera.update();
-		
-		font = new BitmapFont (Gdx.files.internal("data/fonts/arial-15.fnt"),Gdx.files.internal("data/fonts/arial-15.png"), false, true);
-	
-		
 		// load the map, set the unit scale to 1/16 (1 unit == 64 pixels)
 		map = new TmxMapLoader().load("data/level01.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map, 1 / 1f);
-		
-		// init player
-		player = new Player(map,128+32,128+32);
-				
 		
 		if(map == null) {
 			String errorMsg = "Failed to load map ";
 			Gdx.app.error("UTrillium.GameScreen", errorMsg);
 		}
 		
-		
 		// create Box2D physics world
 		mapBodyManager = new MapBodyManager(world, 1.0f, "data/materials.xml", 0);
 		mapBodyManager.createPhysics(map, "physics");
-
 		
-		 
 		debugRenderer=new Box2DDebugRenderer();
-
+		
+		this.mapLoaded = true;
 
 		Gdx.app.debug("UTrillium", "map loaded");
-		
-		// load sprites
+
+	}
+	
+	private void initPlayerFromMap() {
+		// init player
+		player = new Player(map,128+32,128+32);
+
+	}
+
+	private void initSprites() {
 		planeTexture = new Texture(Gdx.files.internal("data/sprites/plane.png")); 
 
 		planeSprite = new Sprite(planeTexture);
-		this.mapLoaded = true;
 	}
 
 	
 	@Override
 	public void render (float delta) {
 		
-		currentWidth = Gdx.graphics.getWidth();
-		currentHeight = Gdx.graphics.getHeight();
+		updateScreenDimensions();
 		
-		//mapWidth = renderer.getMapWidthUnits();
-		//mapHeight = renderer.getMapHeightUnits();
-		
-		cx = currentWidth/2;
-		cy = currentHeight/2;
-		
-		//world.step(delta, 1, 1);
-		
+		updateGameObjects(delta);
 		
 		processInput();
-				
+		
+		renderScreenObjects();
+		
+	}
+
+	private void renderScreenObjects() {
 		// clear the screen
 		Gdx.gl.glClearColor(0.7f, 0.7f, 1.0f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		
-		// get the delta time
-		float deltaTime = Gdx.graphics.getDeltaTime();
-		
-		// update the Utrillium game objects (process input, collision detection, position update)
-		player.update(deltaTime);
-		updateUtrillium(deltaTime);
+			
 		
 		// let the camera follow the plane		
 		moveCameraRelativeToPlayer();
@@ -152,8 +154,24 @@ public class GamePlayScreen extends BaseGameScreen {
 		
 		renderCameraCursor();
 		
-		renderCoordinates();
+		renderDebugInfo();
+	}
+
+	private void updateGameObjects(float delta) {
+
+		world.step(delta, 1, 1);
 		
+		// update the Utrillium game objects (process input, collision detection, position update)
+		player.update(delta);
+		
+	}
+
+	private void updateScreenDimensions() {
+		currentScreenWidth = Gdx.graphics.getWidth();
+		currentScreenHeight = Gdx.graphics.getHeight();
+		
+		cx = currentScreenWidth/2;
+		cy = currentScreenHeight/2;
 	}
 
 	private void renderDebugBox2d() {
@@ -179,6 +197,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		}
 	}
 
+	
 	private void moveCameraRelativeToPlayer() {
 		camera.position.x = player.position.x;
 		camera.position.y = player.position.y;
@@ -187,11 +206,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		// camera sees and render the map
 		renderer.setView(camera);
 	}
-
-	private void updateUtrillium(float deltaTime) {
-		if(deltaTime == 0) return;
-		//this.stateTime += deltaTime;
-	}
+	
 	
 	private void processInput() {
 		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
@@ -224,16 +239,14 @@ public class GamePlayScreen extends BaseGameScreen {
 		spriteBatch.end();
 	}
 	
-	private void renderCoordinates() {
+	private void renderDebugInfo() {
 		spriteBatch = renderer.getSpriteBatch();
 		int fontX = (int) (camera.position.x - cx);
 		int fontY = (int) (camera.position.y + cy);
-//		spriteBatch.setTransformMatrix(camera.combined);
 		spriteBatch.begin();
-		//spriteBatch.setProjectionMatrix(camera.combined);
 		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), fontX+10, fontY-20); 
 		font.draw(spriteBatch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y+ " mapWidth: "+ mapWidth + " mapHeight: " +mapHeight, fontX+10, fontY-40); 
-		font.draw(spriteBatch, "cx: " + cx +" , cy: "+ cy + " screenWidth: "+ currentWidth + " screenHeight: " +currentHeight, fontX+10, fontY-60); 
+		font.draw(spriteBatch, "cx: " + cx +" , cy: "+ cy + " screenWidth: "+ currentScreenWidth + " screenHeight: " +currentScreenHeight, fontX+10, fontY-60); 
 		spriteBatch.end();
 	}
 
@@ -255,7 +268,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		Gdx.app.debug("UTrillium", "dispose game screen");
 		renderer.dispose();
 		shapeRenderer.dispose();
-		//mapBodyManager.destroyPhysics();
+		mapBodyManager.destroyPhysics();
 	}
 	
 	
