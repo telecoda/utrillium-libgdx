@@ -190,7 +190,7 @@ public class GamePlayScreen extends BaseGameScreen {
 
 	private void updateGameObjects(float delta) {
 
-		world.step(delta, 1, 1);
+		world.step(delta, 6, 2);
 		
 		// update the Utrillium game objects (process input, collision detection, position update)
 		player.update(delta);
@@ -278,6 +278,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), fontX+10, fontY-20); 
 		font.draw(spriteBatch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y+ " mapWidth: "+ mapWidth + " mapHeight: " +mapHeight, fontX+10, fontY-40); 
 		font.draw(spriteBatch, "cx: " + cx +" , cy: "+ cy + " screenWidth: "+ currentScreenWidth + " screenHeight: " +currentScreenHeight, fontX+10, fontY-60); 
+		font.draw(spriteBatch, "playerX: " + player.position.x +" , playerY: "+ player.position.y + " playerBodyX: "+ player.physicsBody.getPosition().x + " playerBodyY: " +player.physicsBody.getPosition().y, fontX+10, fontY-80); 
 		spriteBatch.end();
 	}
 
