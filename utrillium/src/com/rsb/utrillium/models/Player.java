@@ -7,6 +7,7 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Transform;
+import com.rsb.utrillium.UTrilliumConst;
 
 public class Player extends GameModel {
 	static final int IDLE = 0;
@@ -37,9 +38,8 @@ public class Player extends GameModel {
 		position.x = x;
 		position.y = y;
 		physicsBody = body;
-		//MassData massData = new MassData();
-		//massData.mass=100;
-		//body.setMassData(massData);
+		this.physicsBody.setAngularDamping(5f);
+		this.physicsBody.setLinearDamping(1f);
 		state = SPAWN;
 		stateTime = 0;
 	}
@@ -62,8 +62,8 @@ public class Player extends GameModel {
 		
 		processInput();
 		Vector2 worldPoint = this.physicsBody.getWorldCenter();
-		this.position.x = worldPoint.x;
-		this.position.y = worldPoint.y;
+		this.position.x = worldPoint.x*UTrilliumConst.TILE_WIDTH;
+		this.position.y = worldPoint.y*UTrilliumConst.TILE_WIDTH;
 
 		this.rotation = (float) Math.toDegrees(this.physicsBody.getTransform().getRotation());
 		stateTime += deltaTime;
@@ -73,38 +73,46 @@ public class Player extends GameModel {
 	private void processInput() {
 		
 		if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.UP) ) {
-			// move up
-			moveUp();
+			speedUp();
 		}
 		if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN)) {
-			// move down
-			moveDown();
+			slowDown();
 		}
 		if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
-			// move left
-			moveLeft();
+			rotateLeft();
 		}
 		if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
-			// move right
-			moveRight();
+			rotateRight();
 		}
 		
 	}
 
-	private void moveRight() {
-		physicsBody.setLinearVelocity(new Vector2(100,0));
+	private void speedUp() {
+		//physicsBody.setLinearVelocity(new Vector2(100,0));
+		Vector2 force=new Vector2(0.05f,0);
+		force.rotate((float) Math.toDegrees(this.physicsBody.getTransform().getRotation()));
+		this.physicsBody.applyLinearImpulse(force, this.physicsBody.getWorldCenter(),true);
+
 	}
 
-	private void moveLeft() {
-		physicsBody.setLinearVelocity(new Vector2(-100,0));
+	private void slowDown() {
+		//physicsBody.setLinearVelocity(new Vector2(-100,0));
+		Vector2 force=new Vector2(-0.05f,0);
+		force.rotate((float) Math.toDegrees(this.physicsBody.getTransform().getRotation()));
+		this.physicsBody.applyLinearImpulse(force, this.physicsBody.getWorldCenter(),true);
 	}
 
-	private void moveDown() {
-		physicsBody.setLinearVelocity(new Vector2(0,-100));
+	private void rotateLeft() {
+		//physicsBody.setLinearVelocity(new Vector2(0,-100));
+		this.physicsBody.setAngularVelocity(5f);
+//		this.rotation = (float) Math.toDegrees(this.physicsBody.getTransform().getRotation());
+
 	}
 
-	private void moveUp() {
-		physicsBody.setLinearVelocity(new Vector2(0,100));
+	private void rotateRight() {
+		//physicsBody.setLinearVelocity(new Vector2(0,100));
+		this.physicsBody.setAngularVelocity(-5f);
+//		
 	}
 	
 }

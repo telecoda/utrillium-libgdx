@@ -30,6 +30,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.rsb.physics.MapBodyManager;
+import com.rsb.utrillium.UTrilliumConst;
 import com.rsb.utrillium.models.Player;
 
 public class GamePlayScreen extends BaseGameScreen {
@@ -98,9 +99,8 @@ public class GamePlayScreen extends BaseGameScreen {
 	private void initCurrentLevelMap() {
 		Gdx.app.debug("UTrillium", "loading map");
 
-		// load the map, set the unit scale to 1/16 (1 unit == 64 pixels)
 		map = new TmxMapLoader().load("data/level01.tmx");
-		renderer = new OrthogonalTiledMapRenderer(map, 1 / 1f);
+		renderer = new OrthogonalTiledMapRenderer(map, 1f);
 		
 		if(map == null) {
 			String errorMsg = "Failed to load map ";
@@ -108,7 +108,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		}
 		
 		// create Box2D physics world
-		mapBodyManager = new MapBodyManager(world, 1.0f, "data/materials.xml", 0);
+		mapBodyManager = new MapBodyManager(world, 1/UTrilliumConst.TILE_WIDTH, "data/materials.xml", 0);
 		mapBodyManager.createPhysics(map, "physics");
 		
 		debugRenderer=new Box2DDebugRenderer();
@@ -211,7 +211,7 @@ public class GamePlayScreen extends BaseGameScreen {
 			//Create a copy of camera projection matrix
 		    debugMatrix=new Matrix4(camera.combined);
 		 
-			debugMatrix.scale(1f/1f, 1f/1f, 1f);
+			debugMatrix.scale(UTrilliumConst.TILE_WIDTH, UTrilliumConst.TILE_WIDTH, 1f);
 			
 			spriteBatch.begin();
 	        //BoxObjectManager.GetWorld() gets the reference to Box2d World object

@@ -37,14 +37,6 @@
   </data>
  </layer>
  <objectgroup name="physics" width="48" height="48">
-  <object name="mainPlayer" type="player" x="192" y="320" width="64" height="64">
-   <properties>
-    <property name="bodyType" value="DynamicBody"/>
-    <property name="gravity" value="0"/>
-    <property name="image" value="plane"/>
-    <property name="spritewidth" value="64"/>
-   </properties>
-  </object>
   <object name="wall01" type="wall" x="0" y="2944" width="2944" height="128"/>
   <object name="wall02" type="wall" x="256" y="2688" width="192" height="128"/>
   <object name="wall04" type="wall" x="768" y="2688" width="320" height="128"/>
@@ -61,5 +53,13 @@
   <object name="wall14" type="wall" x="128" y="576" width="1024" height="64"/>
   <object name="wall15" type="wall" x="640" y="384" width="320" height="192"/>
   <object name="wall16" type="wall" x="640" y="128" width="320" height="128"/>
+  <object name="mainPlayer" type="player" x="265" y="329" width="38" height="41">
+   <properties>
+    <property name="bodyType" value="DynamicBody"/>
+    <property name="gravity" value="0"/>
+    <property name="image" value="plane"/>
+    <property name="spritewidth" value="64"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>
