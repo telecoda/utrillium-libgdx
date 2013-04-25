@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.rsb.utrillium.UTrilliumConst;
 
-public class MainMenu extends UTrilliumScreen {
+public class MainMenu extends BaseGameScreen {
 	TextureRegion title;
 	SpriteBatch batch;
 	float time = 0;
@@ -21,7 +21,7 @@ public class MainMenu extends UTrilliumScreen {
 
 	@Override
 	public void show () {
-		title = new TextureRegion(new Texture(Gdx.files.internal("data/title.png")), 0, 0, UTrilliumConst.SCREEN_WIDTH, UTrilliumConst.SCREEN_HEIGHT);
+		title = new TextureRegion(new Texture(Gdx.files.internal("data/title.png")), 0, 0, 477, 415);
 		batch = new SpriteBatch();
 		batch.getProjectionMatrix().setToOrtho2D(0, 0, UTrilliumConst.SCREEN_WIDTH, UTrilliumConst.SCREEN_HEIGHT);
 
@@ -31,7 +31,7 @@ public class MainMenu extends UTrilliumScreen {
 	public void render (float delta) {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-		batch.draw(title, 0, 0);
+		batch.draw(title, 0, 0,UTrilliumConst.SCREEN_WIDTH, UTrilliumConst.SCREEN_HEIGHT);
 		batch.end();
 
 		time += delta;

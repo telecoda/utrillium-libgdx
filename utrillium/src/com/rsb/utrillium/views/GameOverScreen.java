@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class GameOverScreen extends UTrilliumScreen {
+public class GameOverScreen extends BaseGameScreen {
 	TextureRegion intro;
 	SpriteBatch batch;
 	float time = 0;
