@@ -3,6 +3,7 @@
 	<name>utrillium-android</name>
 	<comment></comment>
 	<projects>
+		<project>gdx-backend-android</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

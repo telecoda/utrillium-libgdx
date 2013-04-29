@@ -29,9 +29,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.rsb.physics.MapBodyManager;
 import com.rsb.utrillium.UTrilliumConst;
 import com.rsb.utrillium.models.Player;
+import com.rsb.utrillium.physics.MapBodyManager;
 
 public class GamePlayScreen extends BaseGameScreen {
 	
@@ -164,11 +164,11 @@ public class GamePlayScreen extends BaseGameScreen {
 		
 		processInput();
 		
-		renderScreenObjects();
+		renderScreenObjects(delta);
 		
 	}
 
-	private void renderScreenObjects() {
+	private void renderScreenObjects(float delta) {
 		// clear the screen
 		Gdx.gl.glClearColor(0.7f, 0.7f, 1.0f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -185,7 +185,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		
 		renderCameraCursor();
 		
-		renderDebugInfo();
+		renderDebugInfo(delta);
 	}
 
 	private void updateGameObjects(float delta) {
@@ -270,14 +270,14 @@ public class GamePlayScreen extends BaseGameScreen {
 		spriteBatch.end();
 	}
 	
-	private void renderDebugInfo() {
+	private void renderDebugInfo(float delta) {
 		spriteBatch = renderer.getSpriteBatch();
 		int fontX = (int) (camera.position.x - cx);
 		int fontY = (int) (camera.position.y + cy);
 		spriteBatch.begin();
 		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), fontX+10, fontY-20); 
 		font.draw(spriteBatch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y+ " mapWidth: "+ mapWidth + " mapHeight: " +mapHeight, fontX+10, fontY-40); 
-		font.draw(spriteBatch, "cx: " + cx +" , cy: "+ cy + " screenWidth: "+ currentScreenWidth + " screenHeight: " +currentScreenHeight, fontX+10, fontY-60); 
+		font.draw(spriteBatch, "cx: " + cx +" , cy: "+ cy + " screenWidth: "+ currentScreenWidth + " screenHeight: " +currentScreenHeight + " delta:" + delta, fontX+10, fontY-60); 
 		font.draw(spriteBatch, "playerX: " + player.position.x +" , playerY: "+ player.position.y + " playerBodyX: "+ player.physicsBody.getPosition().x + " playerBodyY: " +player.physicsBody.getPosition().y, fontX+10, fontY-80); 
 		spriteBatch.end();
 	}

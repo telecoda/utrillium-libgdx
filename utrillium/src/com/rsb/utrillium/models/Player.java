@@ -60,7 +60,7 @@ public class Player extends GameModel {
 
 	public void update (float deltaTime) {
 		
-		processInput();
+		processInput(deltaTime);
 		Vector2 worldPoint = this.physicsBody.getWorldCenter();
 		this.position.x = worldPoint.x*UTrilliumConst.TILE_WIDTH;
 		this.position.y = worldPoint.y*UTrilliumConst.TILE_WIDTH;
@@ -70,46 +70,46 @@ public class Player extends GameModel {
 	}
 
 		
-	private void processInput() {
+	private void processInput(float deltaTime) {
 		
 		if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.UP) ) {
-			speedUp();
+			speedUp(deltaTime);
 		}
 		if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN)) {
-			slowDown();
+			slowDown(deltaTime);
 		}
 		if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
-			rotateLeft();
+			rotateLeft(deltaTime);
 		}
 		if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
-			rotateRight();
+			rotateRight(deltaTime);
 		}
 		
 	}
 
-	private void speedUp() {
+	private void speedUp(float deltaTime) {
 		//physicsBody.setLinearVelocity(new Vector2(100,0));
-		Vector2 force=new Vector2(0.05f,0);
+		Vector2 force=new Vector2(10.0f*deltaTime,0);
 		force.rotate((float) Math.toDegrees(this.physicsBody.getTransform().getRotation()));
 		this.physicsBody.applyLinearImpulse(force, this.physicsBody.getWorldCenter(),true);
 
 	}
 
-	private void slowDown() {
+	private void slowDown(float deltaTime) {
 		//physicsBody.setLinearVelocity(new Vector2(-100,0));
-		Vector2 force=new Vector2(-0.05f,0);
+		Vector2 force=new Vector2(-10.0f*deltaTime,0);
 		force.rotate((float) Math.toDegrees(this.physicsBody.getTransform().getRotation()));
 		this.physicsBody.applyLinearImpulse(force, this.physicsBody.getWorldCenter(),true);
 	}
 
-	private void rotateLeft() {
+	private void rotateLeft(float deltaTime) {
 		//physicsBody.setLinearVelocity(new Vector2(0,-100));
 		this.physicsBody.setAngularVelocity(5f);
 //		this.rotation = (float) Math.toDegrees(this.physicsBody.getTransform().getRotation());
 
 	}
 
-	private void rotateRight() {
+	private void rotateRight(float deltaTime) {
 		//physicsBody.setLinearVelocity(new Vector2(0,100));
 		this.physicsBody.setAngularVelocity(-5f);
 //		
