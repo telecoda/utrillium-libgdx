@@ -1,27 +1,25 @@
 
 package com.rsb.utrillium.views;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.BitmapFont.BitmapFontData;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.MapLayer;
-import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
-import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
@@ -30,6 +28,8 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.rsb.utrillium.UTrilliumConst;
+import com.rsb.utrillium.models.Bullet;
+import com.rsb.utrillium.models.PhysicsMaster;
 import com.rsb.utrillium.models.Player;
 import com.rsb.utrillium.physics.MapBodyManager;
 
@@ -39,10 +39,12 @@ public class GamePlayScreen extends BaseGameScreen {
 	
 	private TiledMap map;
 	
+	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();
+	
 	private OrthogonalTiledMapRenderer renderer;
 	private OrthographicCamera camera;
 	
-	private World world = new World(new Vector2(0,0),true);
+	//private World world = new World(new Vector2(0,0),true);
 	private MapBodyManager mapBodyManager;
 	private Box2DDebugRenderer debugRenderer;
 	private Matrix4 debugMatrix;
@@ -57,6 +59,8 @@ public class GamePlayScreen extends BaseGameScreen {
 	private SpriteBatch spriteBatch;
 	private Texture planeTexture;
 	private Sprite planeSprite;
+	private Texture bulletTexture;
+	private Sprite bulletSprite;
 	
 	private float cx;
 	private float cy;
@@ -79,6 +83,8 @@ public class GamePlayScreen extends BaseGameScreen {
 
 		// This method is called when screen becomes "current screen"
 		// initialise everything for next call of render() method
+		initPhysics();
+		
 		initCamera();
 				
 		initCurrentLevelMap();
@@ -88,6 +94,14 @@ public class GamePlayScreen extends BaseGameScreen {
 		initSprites();
 	}
 
+	private void initPhysics() {
+		// if world already exists detroy if first
+		if(PhysicsMaster.physicsWorld != null) {
+			PhysicsMaster.physicsWorld.dispose();
+		}
+		PhysicsMaster.physicsWorld = new World(new Vector2(0,0),true);
+	}
+	
 	private void initCamera() {
 		updateScreenDimensions();
 
@@ -108,7 +122,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		}
 		
 		// create Box2D physics world
-		mapBodyManager = new MapBodyManager(world, 1/UTrilliumConst.TILE_WIDTH, "data/materials.xml", 0);
+		mapBodyManager = new MapBodyManager(PhysicsMaster.physicsWorld, 1/UTrilliumConst.TILE_WIDTH, "data/materials.xml", 0);
 		mapBodyManager.createPhysics(map, "physics");
 		
 		debugRenderer=new Box2DDebugRenderer();
@@ -122,7 +136,7 @@ public class GamePlayScreen extends BaseGameScreen {
 	private void initPlayer() {
 		
 		// get reference to physics body for player
-		Iterator<Body> bodies = world.getBodies();
+		Iterator<Body> bodies = PhysicsMaster.physicsWorld.getBodies();
 		
 		while(bodies.hasNext()){
 			Body body = bodies.next();
@@ -136,7 +150,7 @@ public class GamePlayScreen extends BaseGameScreen {
 					int x = (Integer) properties.get("x");
 					int y= (Integer) properties.get("y");
 
-					player = new Player(body,x+32,y+32);
+					player = new Player(body,x+32,y+32,bullets);
 					return;
 
 				}
@@ -150,8 +164,10 @@ public class GamePlayScreen extends BaseGameScreen {
 
 	private void initSprites() {
 		planeTexture = new Texture(Gdx.files.internal("data/sprites/plane.png")); 
-
 		planeSprite = new Sprite(planeTexture);
+
+		bulletTexture = new Texture(Gdx.files.internal("data/sprites/bullet.png")); 
+		bulletSprite = new Sprite(bulletTexture);
 	}
 
 	
@@ -179,8 +195,11 @@ public class GamePlayScreen extends BaseGameScreen {
 		
 		renderMap();
 		
+		renderBullets();
+
 		renderPlane();
-		
+
+
 		renderDebugBox2d();
 		
 		renderCameraCursor();
@@ -188,13 +207,36 @@ public class GamePlayScreen extends BaseGameScreen {
 		renderDebugInfo(delta);
 	}
 
+	private void renderBullets() {
+
+		spriteBatch = renderer.getSpriteBatch();
+		spriteBatch.begin();
+		
+		for (Bullet bullet : bullets) {
+
+			bulletSprite.setPosition(bullet.position.x-UTrilliumConst.BULLET_WIDTH/2.0f, bullet.position.y-UTrilliumConst.BULLET_HEIGHT/2.0f);
+			bulletSprite.setRotation(bullet.rotation);
+			bulletSprite.draw(spriteBatch);
+
+		}
+		
+		
+		spriteBatch.end();
+		
+	}
+
 	private void updateGameObjects(float delta) {
 
-		world.step(delta, 6, 2);
+		PhysicsMaster.physicsWorld.step(delta, 6, 2);
 		
 		// update the Utrillium game objects (process input, collision detection, position update)
 		player.update(delta);
 		
+		// update bullets
+		for (Bullet bullet : bullets) {
+
+			bullet.update(delta);
+		} 
 	}
 
 	private void updateScreenDimensions() {
@@ -215,7 +257,7 @@ public class GamePlayScreen extends BaseGameScreen {
 			
 			spriteBatch.begin();
 	        //BoxObjectManager.GetWorld() gets the reference to Box2d World object
-			debugRenderer.render(world, debugMatrix);
+			debugRenderer.render(PhysicsMaster.physicsWorld, debugMatrix);
 			spriteBatch.end();
 		}
 	}
@@ -276,7 +318,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		int fontY = (int) (camera.position.y + cy);
 		spriteBatch.begin();
 		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), fontX+10, fontY-20); 
-		font.draw(spriteBatch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y+ " mapWidth: "+ mapWidth + " mapHeight: " +mapHeight, fontX+10, fontY-40); 
+		font.draw(spriteBatch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y+ " mapWidth: "+ mapWidth + " mapHeight: " +mapHeight+ " mapBodies:" + PhysicsMaster.physicsWorld.getBodyCount(), fontX+10, fontY-40); 
 		font.draw(spriteBatch, "cx: " + cx +" , cy: "+ cy + " screenWidth: "+ currentScreenWidth + " screenHeight: " +currentScreenHeight + " delta:" + delta, fontX+10, fontY-60); 
 		font.draw(spriteBatch, "playerX: " + player.position.x +" , playerY: "+ player.position.y + " playerBodyX: "+ player.physicsBody.getPosition().x + " playerBodyY: " +player.physicsBody.getPosition().y, fontX+10, fontY-80); 
 		spriteBatch.end();
