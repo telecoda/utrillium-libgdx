@@ -31,6 +31,9 @@ import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.XmlReader;
 import com.badlogic.gdx.utils.XmlReader.Element;
+import com.rsb.utrillium.models.PhysicsGameModel;
+import com.rsb.utrillium.models.Player;
+import com.rsb.utrillium.models.Wall;
 
 /**
  * @author David Saltares Mรกrquez david.saltares at gmail.com
@@ -135,7 +138,14 @@ public class MapBodyManager {
 			
 			MapProperties properties = object.getProperties();
 			// add name to properties to store in body's userData
-			properties.put("name", object.getName());
+			String name = object.getName();
+			
+			if(name.equals("mainPlayer")) {
+				// skip mainPlayer
+				continue;
+			}
+			
+			properties.put("name", name);
 			String material = properties.get("material", "default", String.class);
 			String bodyType = properties.get("bodyType", "StaticBody", String.class);
 			
@@ -156,8 +166,12 @@ public class MapBodyManager {
 				bodyDef.type = BodyDef.BodyType.DynamicBody;
 			}
 			Body body = m_world.createBody(bodyDef);
-			Fixture tempFixture = body.createFixture(fixtureDef);
-			body.setUserData(properties);
+			body.createFixture(fixtureDef);
+			
+			// create game object
+			PhysicsGameModel model = new Wall(name,bodyType);
+			
+			body.setUserData(model);
 			m_bodies.add(body);
 			
 			fixtureDef.shape = null;

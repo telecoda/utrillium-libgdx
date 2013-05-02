@@ -25,7 +25,11 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.rsb.utrillium.UTrilliumConst;
 import com.rsb.utrillium.models.Bullet;
@@ -36,6 +40,7 @@ import com.rsb.utrillium.physics.MapBodyManager;
 public class GamePlayScreen extends BaseGameScreen {
 	
 	private Player player;
+	private Body playerBody;
 	
 	private TiledMap map;
 	
@@ -133,6 +138,7 @@ public class GamePlayScreen extends BaseGameScreen {
 
 	}
 	
+	/*
 	private void initPlayer() {
 		
 		// get reference to physics body for player
@@ -161,7 +167,37 @@ public class GamePlayScreen extends BaseGameScreen {
 		throw new RuntimeException("mainPlayer definition not found in map! Cannot continue.");
 
 	}
-
+	*/
+	private void initPlayer() {
+		
+		// create a new body for the player
+		FixtureDef fixtureDef = new FixtureDef();
+		fixtureDef.density = 1.0f;
+		fixtureDef.friction = 1.0f;
+		fixtureDef.restitution = 1.0f;
+		
+		
+		float x = 4.0f;
+		float y = 4.0f;
+		Shape shape = PhysicsMaster.getRectangle(x, y, UTrilliumConst.PLAYER_WIDTH, UTrilliumConst.PLAYER_HEIGHT);;
+		fixtureDef.shape = shape;
+		
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type = BodyDef.BodyType.DynamicBody;			
+		bodyDef.bullet=false;
+		
+		playerBody = PhysicsMaster.physicsWorld.createBody(bodyDef);
+		playerBody.createFixture(fixtureDef);
+		
+		playerBody.setAngularDamping(5f);
+		playerBody.setLinearDamping(1f);
+		
+		
+		player = new Player(x+32,y+32,bullets,playerBody);
+		
+		playerBody.setUserData(player);
+	}
+	
 	private void initSprites() {
 		planeTexture = new Texture(Gdx.files.internal("data/sprites/plane.png")); 
 		planeSprite = new Sprite(planeTexture);
@@ -178,7 +214,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		
 		updateGameObjects(delta);
 		
-		processInput();
+		processInput(delta);
 		
 		renderScreenObjects(delta);
 		
@@ -215,7 +251,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		for (Bullet bullet : bullets) {
 
 			bulletSprite.setPosition(bullet.position.x-UTrilliumConst.BULLET_WIDTH/2.0f, bullet.position.y-UTrilliumConst.BULLET_HEIGHT/2.0f);
-			bulletSprite.setRotation(bullet.rotation);
+			bulletSprite.setRotation(bullet.rotationInDegrees);
 			bulletSprite.draw(spriteBatch);
 
 		}
@@ -228,6 +264,8 @@ public class GamePlayScreen extends BaseGameScreen {
 	private void updateGameObjects(float delta) {
 
 		PhysicsMaster.physicsWorld.step(delta, 6, 2);
+		
+		PhysicsMaster.updateGameObjects();
 		
 		// update the Utrillium game objects (process input, collision detection, position update)
 		player.update(delta);
@@ -281,7 +319,7 @@ public class GamePlayScreen extends BaseGameScreen {
 	}
 	
 	
-	private void processInput() {
+	private void processInput(float deltaTime) {
 		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
 			game.setScreen(new MainMenu(game));
 		}
@@ -295,7 +333,43 @@ public class GamePlayScreen extends BaseGameScreen {
 		if (Gdx.input.isKeyPressed(Keys.B)) {
 			renderPhysicsBodies = !renderPhysicsBodies;
 		}
+		
+		if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.UP) ) {
+			speedUp(deltaTime);
+		}
+		if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN)) {
+			slowDown(deltaTime);
+		}
+		if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
+			rotateLeft(deltaTime);
+		}
+		if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
+			rotateRight(deltaTime);
+		}
+		
 
+	}
+	
+	private void speedUp(float deltaTime) {
+		Vector2 force=new Vector2(10.0f*deltaTime,0);
+		force.rotate((float) Math.toDegrees(playerBody.getTransform().getRotation()));
+		playerBody.applyLinearImpulse(force, playerBody.getWorldCenter(),true);
+
+	}
+
+	private void slowDown(float deltaTime) {
+		Vector2 force=new Vector2(-10.0f*deltaTime,0);
+		force.rotate((float) Math.toDegrees(playerBody.getTransform().getRotation()));
+		playerBody.applyLinearImpulse(force, playerBody.getWorldCenter(),true);
+	}
+
+	private void rotateLeft(float deltaTime) {
+		playerBody.setAngularVelocity(5f);
+
+	}
+
+	private void rotateRight(float deltaTime) {
+		playerBody.setAngularVelocity(-5f);
 	}
 
 
@@ -305,7 +379,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		spriteBatch.begin();
 		
 		planeSprite.setPosition(camera.position.x-planeTexture.getWidth()/2, camera.position.y-planeTexture.getHeight()/2);
-		planeSprite.setRotation(player.rotation);
+		planeSprite.setRotation(player.rotationInDegrees);
 		planeSprite.draw(spriteBatch);
 		
 		
@@ -320,7 +394,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), fontX+10, fontY-20); 
 		font.draw(spriteBatch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y+ " mapWidth: "+ mapWidth + " mapHeight: " +mapHeight+ " mapBodies:" + PhysicsMaster.physicsWorld.getBodyCount(), fontX+10, fontY-40); 
 		font.draw(spriteBatch, "cx: " + cx +" , cy: "+ cy + " screenWidth: "+ currentScreenWidth + " screenHeight: " +currentScreenHeight + " delta:" + delta, fontX+10, fontY-60); 
-		font.draw(spriteBatch, "playerX: " + player.position.x +" , playerY: "+ player.position.y + " playerBodyX: "+ player.physicsBody.getPosition().x + " playerBodyY: " +player.physicsBody.getPosition().y, fontX+10, fontY-80); 
+		//font.draw(spriteBatch, "playerX: " + player.position.x +" , playerY: "+ player.position.y + " playerBodyX: "+ player.physicsBody.getPosition().x + " playerBodyY: " +player.physicsBody.getPosition().y, fontX+10, fontY-80); 
 		spriteBatch.end();
 	}
 

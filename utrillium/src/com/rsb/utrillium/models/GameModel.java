@@ -13,7 +13,7 @@ public abstract class GameModel {
 	public Vector2 position = new Vector2();
 	//public Vector2 acceleration = new Vector2();
 	//public Vector2 velocity = new Vector2();
-	public float rotation=0;
+	public float rotationInDegrees=0;
 	
 	public float stateTime;
 

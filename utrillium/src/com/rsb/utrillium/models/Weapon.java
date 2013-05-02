@@ -16,7 +16,7 @@ import com.rsb.utrillium.UTrilliumConst;
 public class Weapon extends GameModel {
 
 	
-	public Weapon(float weaponOffsetX, float weaponOffsetY, PhysicsGameModel attachedTo, float reloadRate) {
+	public Weapon(float weaponOffsetX, float weaponOffsetY, Body attachedTo, float reloadRate) {
 		this.attachedTo = attachedTo;
 		this.weaponOffsetX = weaponOffsetX + UTrilliumConst.BULLET_WIDTH/2f;
 		this.weaponOffsetY = weaponOffsetY - UTrilliumConst.BULLET_HEIGHT/2f;
@@ -34,7 +34,7 @@ public class Weapon extends GameModel {
 	public float reloadRate;
 	public boolean isReloading=false;
 	public float currentLoadTime;
-	public PhysicsGameModel attachedTo;
+	public Body attachedTo;
 	
 	@Override
 	public void update(float deltaTime) {
@@ -97,21 +97,22 @@ public class Weapon extends GameModel {
 		// calc offset of bullet position
 		Vector2 offsetVector = new Vector2(weaponOffsetX,weaponOffsetY); 
 		
-		float rotationAngle = (float) Math.toDegrees(this.attachedTo.physicsBody.getTransform().getRotation());
+		float rotationAngle = (float) Math.toDegrees(this.attachedTo.getTransform().getRotation());
 		// rotate by plane direction
 		offsetVector.rotate(rotationAngle);
 		
-		float x = attachedTo.position.x+offsetVector.x;
-		float y = attachedTo.position.y+offsetVector.y;
-		Shape shape = getBulletRectangle(x, y, UTrilliumConst.BULLET_WIDTH, UTrilliumConst.BULLET_HEIGHT);;
+		float x = attachedTo.getWorldCenter().x+offsetVector.x;
+		float y = attachedTo.getWorldCenter().y+offsetVector.y;
+		Shape shape = PhysicsMaster.getRectangle(x, y, UTrilliumConst.BULLET_WIDTH, UTrilliumConst.BULLET_HEIGHT);;
 		fixtureDef.shape = shape;
 		
 		BodyDef bodyDef = new BodyDef();
 		//bodyDef.type = BodyDef.BodyType.KinematicBody;			
 		bodyDef.type = BodyDef.BodyType.DynamicBody;			
 		bodyDef.bullet=true;
+		
 		Body body = PhysicsMaster.physicsWorld.createBody(bodyDef);
-		Fixture tempFixture = body.createFixture(fixtureDef);
+		body.createFixture(fixtureDef);
 		
 		// set direction
 		// get velocity of plane
@@ -119,24 +120,15 @@ public class Weapon extends GameModel {
 		// rotate by plane direction
 		bulletVelocity.rotate(rotationAngle);
 		
-		Vector2 planeVelocity = this.attachedTo.physicsBody.getLinearVelocity();
+		Vector2 planeVelocity = this.attachedTo.getLinearVelocity();
 		bulletVelocity.add(planeVelocity);
 		
 		body.setLinearVelocity(bulletVelocity);
-
-		Bullet bullet = new Bullet(body, x,y);
+		
+		Bullet bullet = new Bullet("BulletName", "Bullet");
+		body.setUserData(bullet);
 		return bullet;
 
 	}
 	
-	private Shape getBulletRectangle(float x, float y, float width, float height) {
-		PolygonShape polygon = new PolygonShape();
-		Vector2 size = new Vector2((x + (width * 0.5f)) * PhysicsMaster.unitsPerPixel,
-								   (y + (height * 0.5f) ) * PhysicsMaster.unitsPerPixel);
-		polygon.setAsBox((width * 0.5f) * PhysicsMaster.unitsPerPixel,
-						 (height * 0.5f) * PhysicsMaster.unitsPerPixel,
-						 size,
-						 0.0f);
-		return polygon;
-	}
 }
