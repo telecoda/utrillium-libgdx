@@ -3,6 +3,7 @@ package com.rsb.utrillium.views;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -15,17 +16,15 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.maps.MapLayer;
-import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.World;
 import com.rsb.utrillium.UTrilliumConst;
 import com.rsb.utrillium.models.Bullet;
@@ -236,7 +235,14 @@ public class GamePlayScreen extends BaseGameScreen {
 		for (Bullet bullet : bullets) {
 
 			bullet.update(delta);
-		} 
+		}
+		
+		// check collisions
+		int collisionCount = PhysicsMaster.physicsWorld.getContactCount();
+		List<Contact> collisions = PhysicsMaster.physicsWorld.getContactList();
+		if(collisions.size()>0) {
+			Gdx.app.log("UTrillium", "boom");
+		}
 	}
 
 	private void updateScreenDimensions() {
