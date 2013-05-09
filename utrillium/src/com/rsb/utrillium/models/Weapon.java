@@ -101,9 +101,16 @@ public class Weapon extends GameModel {
 		// rotate by plane direction
 		offsetVector.rotate(rotationAngle);
 		
-		float x = attachedTo.getWorldCenter().x+offsetVector.x;
-		float y = attachedTo.getWorldCenter().y+offsetVector.y;
-		Shape shape = PhysicsMaster.getRectangle(x, y, UTrilliumConst.BULLET_WIDTH, UTrilliumConst.BULLET_HEIGHT);;
+		float worldX = attachedTo.getWorldCenter().x;
+		float worldY = attachedTo.getWorldCenter().y;
+
+		float screenX = (worldX / PhysicsMaster.unitsPerPixel)+offsetVector.x;
+		float screenY = (worldY / PhysicsMaster.unitsPerPixel)+offsetVector.y;
+
+		Gdx.app.log("UTrillium", "attachedTo worldX:"+worldX + " worldY:"+worldY);
+		Gdx.app.log("UTrillium", "attachedTo screenX:"+screenX + " screenY:"+screenY);
+
+		Shape shape = PhysicsMaster.getRectangle(screenX, screenY, UTrilliumConst.BULLET_WIDTH, UTrilliumConst.BULLET_HEIGHT);;
 		fixtureDef.shape = shape;
 		
 		BodyDef bodyDef = new BodyDef();

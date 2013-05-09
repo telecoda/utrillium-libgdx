@@ -16,10 +16,8 @@ public class Player extends PhysicsGameModel {
 
 	private Weapon weapon;
 	private ArrayList<Bullet> bullets;
-	public Player (float x, float y, ArrayList<Bullet> bullets, Body playerBody) {
+	public Player (ArrayList<Bullet> bullets, Body playerBody) {
 		super("mainPlayer", "Player");
-		position.x = x;
-		position.y = y;
 		
 		stateTime = 0;
 		this.bullets = bullets;

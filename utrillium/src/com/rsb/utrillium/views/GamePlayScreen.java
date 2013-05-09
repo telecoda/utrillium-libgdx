@@ -94,7 +94,7 @@ public class GamePlayScreen extends BaseGameScreen {
 				
 		initCurrentLevelMap();
 
-		initPlayer();
+		initPlayer(128f,128f);
 		// load sprites
 		initSprites();
 	}
@@ -168,7 +168,7 @@ public class GamePlayScreen extends BaseGameScreen {
 
 	}
 	*/
-	private void initPlayer() {
+	private void initPlayer(float playerX, float playerY) {
 		
 		// create a new body for the player
 		FixtureDef fixtureDef = new FixtureDef();
@@ -177,9 +177,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		fixtureDef.restitution = 1.0f;
 		
 		
-		float x = 4.0f;
-		float y = 4.0f;
-		Shape shape = PhysicsMaster.getRectangle(x, y, UTrilliumConst.PLAYER_WIDTH, UTrilliumConst.PLAYER_HEIGHT);;
+		Shape shape = PhysicsMaster.getRectangle(playerX, playerY, UTrilliumConst.PLAYER_WIDTH-20, UTrilliumConst.PLAYER_HEIGHT-20);;
 		fixtureDef.shape = shape;
 		
 		BodyDef bodyDef = new BodyDef();
@@ -193,7 +191,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		playerBody.setLinearDamping(1f);
 		
 		
-		player = new Player(x+32,y+32,bullets,playerBody);
+		player = new Player(bullets,playerBody);
 		
 		playerBody.setUserData(player);
 	}
