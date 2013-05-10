@@ -1,6 +1,7 @@
 package com.rsb.utrillium.models;
 
 import com.badlogic.gdx.math.Vector2;
+import com.rsb.utrillium.physics.PhysicsMaster;
 
 
 public abstract  class PhysicsGameModel extends GameModel{

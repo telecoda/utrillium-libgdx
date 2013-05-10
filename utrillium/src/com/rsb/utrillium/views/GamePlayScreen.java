@@ -2,7 +2,6 @@
 package com.rsb.utrillium.views;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -15,11 +14,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.maps.MapLayer;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
@@ -27,15 +22,15 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.rsb.utrillium.UTrilliumConst;
 import com.rsb.utrillium.models.Bullet;
-import com.rsb.utrillium.models.PhysicsMaster;
 import com.rsb.utrillium.models.Player;
+import com.rsb.utrillium.physics.CollisionHandler;
 import com.rsb.utrillium.physics.MapBodyManager;
+import com.rsb.utrillium.physics.PhysicsMaster;
 
 public class GamePlayScreen extends BaseGameScreen {
 	
@@ -48,6 +43,8 @@ public class GamePlayScreen extends BaseGameScreen {
 	
 	private OrthogonalTiledMapRenderer renderer;
 	private OrthographicCamera camera;
+	
+	private CollisionHandler collisionHandler;
 	
 	//private World world = new World(new Vector2(0,0),true);
 	private MapBodyManager mapBodyManager;
@@ -105,6 +102,9 @@ public class GamePlayScreen extends BaseGameScreen {
 			PhysicsMaster.physicsWorld.dispose();
 		}
 		PhysicsMaster.physicsWorld = new World(new Vector2(0,0),true);
+		
+		collisionHandler = new CollisionHandler(bullets);
+		PhysicsMaster.physicsWorld.setContactListener(collisionHandler);
 	}
 	
 	private void initCamera() {
@@ -138,36 +138,7 @@ public class GamePlayScreen extends BaseGameScreen {
 
 	}
 	
-	/*
-	private void initPlayer() {
-		
-		// get reference to physics body for player
-		Iterator<Body> bodies = PhysicsMaster.physicsWorld.getBodies();
-		
-		while(bodies.hasNext()){
-			Body body = bodies.next();
-			// find mainPlayer body
-			MapProperties properties = (MapProperties)body.getUserData();
-			
-			if(properties!=null) {
-				String propertyName = properties.get("name", "no name", String.class);
-				if(propertyName.equals("mainPlayer")) {
-					// found main player!
-					int x = (Integer) properties.get("x");
-					int y= (Integer) properties.get("y");
-
-					player = new Player(body,x+32,y+32,bullets);
-					return;
-
-				}
-			}
-			
-		}
 	
-		throw new RuntimeException("mainPlayer definition not found in map! Cannot continue.");
-
-	}
-	*/
 	private void initPlayer(float playerX, float playerY) {
 		
 		// create a new body for the player
@@ -261,18 +232,17 @@ public class GamePlayScreen extends BaseGameScreen {
 
 	private void updateGameObjects(float delta) {
 
-		PhysicsMaster.physicsWorld.step(delta, 6, 2);
-		
-		PhysicsMaster.updateGameObjects();
-		
-		// update the Utrillium game objects (process input, collision detection, position update)
+		PhysicsMaster.update(delta);
+				
 		player.update(delta);
 		
+		/*
 		// update bullets
 		for (Bullet bullet : bullets) {
 
 			bullet.update(delta);
 		} 
+		*/
 	}
 
 	private void updateScreenDimensions() {
@@ -392,6 +362,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), fontX+10, fontY-20); 
 		font.draw(spriteBatch, "Camera x: " + camera.position.x +" , Camera y: "+ camera.position.y+ " mapWidth: "+ mapWidth + " mapHeight: " +mapHeight+ " mapBodies:" + PhysicsMaster.physicsWorld.getBodyCount(), fontX+10, fontY-40); 
 		font.draw(spriteBatch, "cx: " + cx +" , cy: "+ cy + " screenWidth: "+ currentScreenWidth + " screenHeight: " +currentScreenHeight + " delta:" + delta, fontX+10, fontY-60); 
+		font.draw(spriteBatch, "collision count: " + PhysicsMaster.physicsWorld.getContactCount(), fontX+10, fontY-100); 
 		//font.draw(spriteBatch, "playerX: " + player.position.x +" , playerY: "+ player.position.y + " playerBodyX: "+ player.physicsBody.getPosition().x + " playerBodyY: " +player.physicsBody.getPosition().y, fontX+10, fontY-80); 
 		spriteBatch.end();
 	}

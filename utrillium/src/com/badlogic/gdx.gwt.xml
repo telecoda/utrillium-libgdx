@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to="com.badlogic.gdx">
+	<inherits name="com.esotericsoftware.tablelayout"/>
+	<source path="gdx">
+		<include name="src/com/rsb/utrillium/views/BaseGameScreen.java"/>
+		<include name="src/com/rsb/utrillium/models/Bullet.java"/>
+		<include name="src/com/rsb/utrillium/physics/CollisionHandler.java"/>
+		<include name="src/com/rsb/utrillium/models/GameModel.java"/>
+		<include name="src/com/rsb/utrillium/views/GameOverScreen.java"/>
+		<include name="src/com/rsb/utrillium/views/GamePlayScreen.java"/>
+		<include name="src/com/rsb/utrillium/views/IntroScreen.java"/>
+		<include name="src/com/rsb/utrillium/views/MainMenu.java"/>
+		<include name="src/com/rsb/utrillium/physics/MapBodyManager.java"/>
+		<include name="src/com/rsb/utrillium/models/PhysicsGameModel.java"/>
+		<include name="src/com/rsb/utrillium/physics/PhysicsMaster.java"/>
+		<include name="src/com/rsb/utrillium/models/Player.java"/>
+		<include name="src/com/rsb/utrillium/UTrillium.java"/>
+		<include name="src/com/rsb/utrillium/UTrilliumConst.java"/>
+		<include name="src/com/rsb/utrillium/models/Wall.java"/>
+		<include name="src/com/rsb/utrillium/models/Weapon.java"/>
+		<include name="graphics/g2d/Animation.java"/>
+		<include name="graphics/g3d/Animation.java"/>
+	</source>
+</module>

@@ -1,7 +1,9 @@
-package com.rsb.utrillium.models;
+package com.rsb.utrillium.physics;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
@@ -13,13 +15,16 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.rsb.utrillium.UTrilliumConst;
+import com.rsb.utrillium.models.PhysicsGameModel;
 
-public class PhysicsMaster implements ContactListener{
+public class PhysicsMaster {
 
 	public static World physicsWorld;
 	
 	public static float unitsPerPixel = 1.0f/UTrilliumConst.TILE_WIDTH;
-
+	
+	public static ArrayList<Body> bodiesToDestroy;
+	
 	public static void convertPhysicsObjectCentreToSpriteCoord(Vector2 worldPos, Vector2 screenPos) {
 
 		screenPos.x = worldPos.x * UTrilliumConst.TILE_WIDTH;
@@ -37,7 +42,7 @@ public class PhysicsMaster implements ContactListener{
 		return polygon;
 	}
 
-	public static void updateGameObjects() {
+	public static void updateGameObjectPositions() {
 		Iterator<Body> bodies = physicsWorld.getBodies();
 		
 		while(bodies.hasNext()) {
@@ -53,40 +58,21 @@ public class PhysicsMaster implements ContactListener{
 		
 	}
 	
-	@Override
-	public void beginContact(Contact contact) {
-        // TODO Auto-generated method stub
-       /*
-       Fixture f1=contact.getFixtureA();
-       Body b1=f1.getBody();
-       Fixture f2=contact.getFixtureB();
-       Body b2=f2.getBody();
-       BoxUserData userData1 = (BoxUserData) b1.getUserData();
-       BoxUserData userData2 = (BoxUserData) b2.getUserData();
-       //Depending on type of body we can handle 
-      if(userData1.GetCollisionGroup()==OBJECT1  && userData2.GetCollisionGroup()==OBJECT2)
-                HandleObject12Collision(userData1,userData2);
-      if(userData1.GetCollisionGroup()==OBJECT2  && userData2.GetCollisionGroup()==OBJECT1)
-                HandleObject12Collision(userData2,userData1);
-      
-      */
- }
+	  
+ 	public static void update(float delta) {
 
-	@Override
-	public void endContact(Contact contact) {
-		// TODO Auto-generated method stub
+ 		// init bodies to destroy
+ 		bodiesToDestroy = new ArrayList<Body>();
+ 		
+		physicsWorld.step(delta, 6, 2);
 		
-	}
+		// destroy unwanted bodies
+		for(Body body : bodiesToDestroy) {
+			PhysicsMaster.physicsWorld.destroyBody(body);
+		}
 
-	@Override
-	public void preSolve(Contact contact, Manifold oldManifold) {
-		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public void postSolve(Contact contact, ContactImpulse impulse) {
-		// TODO Auto-generated method stub
+		updateGameObjectPositions();
 		
 	}
 }
