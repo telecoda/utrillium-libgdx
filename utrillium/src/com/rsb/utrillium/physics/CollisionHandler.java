@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.rsb.utrillium.models.Bullet;
+import com.rsb.utrillium.models.GameModelState;
 import com.rsb.utrillium.models.PhysicsGameModel;
 import com.rsb.utrillium.models.Wall;
 
@@ -36,13 +37,13 @@ public class CollisionHandler implements ContactListener {
 			// bullet hits wall
 			Gdx.app.log("UTrillium", "bullet hit wall1");
 			// destroy bullet
-			bulletHitWall(b2,(Bullet)userData2);
+			bulletHasHitWall(b2,(Bullet)userData2);
 		}
 
 		if ((userData1 instanceof Bullet) && (userData2 instanceof Wall)) {
 			// bullet hits wall
 			Gdx.app.log("UTrillium", "bullet hit wall2");
-			bulletHitWall(b1,(Bullet)userData1);
+			bulletHasHitWall(b1,(Bullet)userData1);
 
 		}
 
@@ -56,10 +57,12 @@ public class CollisionHandler implements ContactListener {
 		 */
 	}
 
-	public void bulletHitWall(Body bulletPhysicsBody,Bullet bullet) {
+	public void bulletHasHitWall(Body bulletPhysicsBody,Bullet bullet) {
 		
 		// destroy bullet
 		PhysicsMaster.bodiesToDestroy.add(bulletPhysicsBody);
+		bullet.setState(GameModelState.DYING);
+		// play sound, begin explosion animation etc
 		bullets.remove(bullet);
 		
 	}

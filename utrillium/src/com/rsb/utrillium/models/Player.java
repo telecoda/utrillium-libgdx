@@ -19,7 +19,8 @@ public class Player extends PhysicsGameModel {
 	public Player (ArrayList<Bullet> bullets, Body playerBody) {
 		super("mainPlayer", "Player");
 		
-		stateTime = 0;
+		setState(GameModelState.ACTIVE);
+		
 		this.bullets = bullets;
 		
 		// attach a weapon to the place

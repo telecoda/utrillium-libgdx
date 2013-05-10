@@ -15,6 +15,15 @@ public abstract class GameModel {
 	//public Vector2 velocity = new Vector2();
 	public float rotationInDegrees=0;
 	
+	private GameModelState state;
 	public float stateTime;
 
+	public void setState(GameModelState newState) {
+		this.state = newState;
+		this.stateTime=0;
+	}
+	
+	public GameModelState getState(){
+		return state;
+	}
 }

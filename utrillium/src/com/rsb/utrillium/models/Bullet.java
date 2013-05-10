@@ -11,7 +11,8 @@ public class Bullet extends PhysicsGameModel{
 	
 	public Bullet(String name, String type) {
 		super(name, type);
-		// TODO Auto-generated constructor stub
+
+		this.setState(GameModelState.ACTIVE);
 	}
 
 	@Override
