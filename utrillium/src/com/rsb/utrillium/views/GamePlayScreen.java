@@ -195,12 +195,12 @@ public class GamePlayScreen extends BaseGameScreen {
 	private void initParticles() {
 
 		effect = new ParticleEffect();
-		effect.load(Gdx.files.internal("data/particles/particle.p"), Gdx.files.internal("data"));
+		effect.load(Gdx.files.internal("data/particle.p"), Gdx.files.internal("data"));
 		effect.setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 		// Of course, a ParticleEffect is normally just used, without messing around with its emitters.
 		emitters = new Array(effect.getEmitters());
 		effect.getEmitters().clear();
-		effect.getEmitters().add(emitters.get(1));
+		effect.getEmitters().add(emitters.get(0));
 		
 	}
 
