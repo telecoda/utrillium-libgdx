@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.ParticleEmitter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -25,6 +27,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.rsb.utrillium.UTrilliumConst;
 import com.rsb.utrillium.models.Bullet;
 import com.rsb.utrillium.models.Player;
@@ -34,23 +37,21 @@ import com.rsb.utrillium.physics.PhysicsMaster;
 
 public class GamePlayScreen extends BaseGameScreen {
 	
+
+	// game models
 	private Player player;
 	private Body playerBody;
-	
-	private TiledMap map;
-	
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();
 	
+	// view fields
+	private float cx;
+	private float cy;
+	
+	private int currentScreenWidth;
+	private int currentScreenHeight;
+
 	private OrthogonalTiledMapRenderer renderer;
 	private OrthographicCamera camera;
-	
-	private CollisionHandler collisionHandler;
-	
-	//private World world = new World(new Vector2(0,0),true);
-	private MapBodyManager mapBodyManager;
-	private Box2DDebugRenderer debugRenderer;
-	private Matrix4 debugMatrix;
-
 	private boolean renderPhysicsBodies=false;
 	private boolean renderMapTiles=true;
 	
@@ -62,18 +63,31 @@ public class GamePlayScreen extends BaseGameScreen {
 	private Texture planeTexture;
 	private Sprite planeSprite;
 	private Texture bulletTexture;
-	private Sprite bulletSprite;
+	private Sprite bulletSprite;	
+
+	// particle fields
+	private ParticleEffect effect;
+	private int emitterIndex;
+	private Array<ParticleEmitter> emitters;
+	private int particleCount = 10;
+
 	
-	private float cx;
-	private float cy;
 	
-	private int currentScreenWidth;
-	private int currentScreenHeight;
-	
+	// map fields
+	private TiledMap map;
 	private int mapWidth;
 	private int mapHeight;
-	
+	private MapBodyManager mapBodyManager;
+	private Box2DDebugRenderer debugRenderer;
+	private Matrix4 debugMatrix;
 	boolean mapLoaded=false;
+	
+	// physics fields
+	private CollisionHandler collisionHandler;
+	
+
+	
+	
 	
 	public GamePlayScreen (Game game) {
 		super(game);
@@ -83,6 +97,7 @@ public class GamePlayScreen extends BaseGameScreen {
 	@Override
 	public void show () {
 
+		initParticles();
 		// This method is called when screen becomes "current screen"
 		// initialise everything for next call of render() method
 		initPhysics();
@@ -94,7 +109,9 @@ public class GamePlayScreen extends BaseGameScreen {
 		initPlayer(128f,128f);
 		// load sprites
 		initSprites();
+		
 	}
+
 
 	private void initPhysics() {
 		// if world already exists detroy if first
@@ -103,7 +120,7 @@ public class GamePlayScreen extends BaseGameScreen {
 		}
 		PhysicsMaster.physicsWorld = new World(new Vector2(0,0),true);
 		
-		collisionHandler = new CollisionHandler(bullets);
+		collisionHandler = new CollisionHandler(this);
 		PhysicsMaster.physicsWorld.setContactListener(collisionHandler);
 	}
 	
@@ -175,6 +192,18 @@ public class GamePlayScreen extends BaseGameScreen {
 		bulletSprite = new Sprite(bulletTexture);
 	}
 
+	private void initParticles() {
+
+		effect = new ParticleEffect();
+		effect.load(Gdx.files.internal("data/particles/particle.p"), Gdx.files.internal("data"));
+		effect.setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+		// Of course, a ParticleEffect is normally just used, without messing around with its emitters.
+		emitters = new Array(effect.getEmitters());
+		effect.getEmitters().clear();
+		effect.getEmitters().add(emitters.get(1));
+		
+	}
+
 	
 	@Override
 	public void render (float delta) {
@@ -204,12 +233,20 @@ public class GamePlayScreen extends BaseGameScreen {
 
 		renderPlane();
 
+		renderParticles(delta);
 
 		renderDebugBox2d();
 		
 		renderCameraCursor();
 		
 		renderDebugInfo(delta);
+	}
+
+	private void renderParticles(float delta) {
+		spriteBatch.begin();
+		effect.draw(spriteBatch, delta);
+		spriteBatch.end();
+		
 	}
 
 	private void renderBullets() {
@@ -318,6 +355,7 @@ public class GamePlayScreen extends BaseGameScreen {
 
 	}
 	
+	
 	private void speedUp(float deltaTime) {
 		Vector2 force=new Vector2(10.0f*deltaTime,0);
 		force.rotate((float) Math.toDegrees(playerBody.getTransform().getRotation()));
@@ -386,6 +424,36 @@ public class GamePlayScreen extends BaseGameScreen {
 		renderer.dispose();
 		shapeRenderer.dispose();
 		mapBodyManager.destroyPhysics();
+	}
+
+	public void removeBullet(Bullet bullet) {
+
+		bullets.remove(bullet);
+	}
+
+	public void addBulletExplosion(Vector2 position) {
+			/*ParticleEmitter emitter = emitters.get(1);
+			emitter.setPosition(position.x, position.y);
+			particleCount += 10;
+			System.out.println(particleCount);
+			particleCount = Math.max(0, particleCount);
+			if (particleCount > emitter.getMaxParticleCount()) emitter.setMaxParticleCount(particleCount * 2);
+			emitter.getEmission().setHigh(particleCount / emitter.getLife().getHighMax() * 10);
+			//effect.getEmitters().clear();
+			effect.getEmitters().add(emitter);
+			emitter.start();
+		*/
+		
+		effect.setPosition(position.x, position.y);
+		effect.start();
+/*
+		effect.setPosition( world.waterDropX, world.waterDropY);
+
+		emitters = newArray(effect.getEmitters());
+
+		effect.getEmitters().add(emitters.get(0));
+
+		emitters.get(0).start();*/
 	}
 	
 	

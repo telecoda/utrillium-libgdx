@@ -6,6 +6,7 @@
 		<include name="src/com/rsb/utrillium/models/Bullet.java"/>
 		<include name="src/com/rsb/utrillium/physics/CollisionHandler.java"/>
 		<include name="src/com/rsb/utrillium/models/GameModel.java"/>
+		<include name="src/com/rsb/utrillium/models/GameModelState.java"/>
 		<include name="src/com/rsb/utrillium/views/GameOverScreen.java"/>
 		<include name="src/com/rsb/utrillium/views/GamePlayScreen.java"/>
 		<include name="src/com/rsb/utrillium/views/IntroScreen.java"/>

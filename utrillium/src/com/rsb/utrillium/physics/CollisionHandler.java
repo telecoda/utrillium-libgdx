@@ -1,8 +1,7 @@
 package com.rsb.utrillium.physics;
 
-import java.util.ArrayList;
-
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
@@ -13,13 +12,14 @@ import com.rsb.utrillium.models.Bullet;
 import com.rsb.utrillium.models.GameModelState;
 import com.rsb.utrillium.models.PhysicsGameModel;
 import com.rsb.utrillium.models.Wall;
+import com.rsb.utrillium.views.GamePlayScreen;
 
 public class CollisionHandler implements ContactListener {
 
-	private ArrayList<Bullet> bullets;
+	private GamePlayScreen gameScreen;
 	
-	public CollisionHandler(ArrayList<Bullet> bullets) {
-		this.bullets = bullets;
+	public CollisionHandler(GamePlayScreen gameScreen) {
+		this.gameScreen = gameScreen;
 	}
 
 	@Override
@@ -62,8 +62,11 @@ public class CollisionHandler implements ContactListener {
 		// destroy bullet
 		PhysicsMaster.bodiesToDestroy.add(bulletPhysicsBody);
 		bullet.setState(GameModelState.DYING);
+		gameScreen.removeBullet(bullet);
 		// play sound, begin explosion animation etc
-		bullets.remove(bullet);
+		// create explosion for bullet collision
+		gameScreen.addBulletExplosion(bullet.position);
+		
 		
 	}
 
