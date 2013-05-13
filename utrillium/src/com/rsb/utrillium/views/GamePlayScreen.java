@@ -5,7 +5,9 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -71,7 +73,8 @@ public class GamePlayScreen extends BaseGameScreen {
 	private Array<ParticleEmitter> emitters;
 	private int particleCount = 10;
 
-	
+	// audio
+	private Sound bulletSound;
 	
 	// map fields
 	private TiledMap map;
@@ -109,6 +112,8 @@ public class GamePlayScreen extends BaseGameScreen {
 		initPlayer(128f,128f);
 		// load sprites
 		initSprites();
+		
+		initSounds();
 		
 	}
 
@@ -192,6 +197,11 @@ public class GamePlayScreen extends BaseGameScreen {
 		bulletSprite = new Sprite(bulletTexture);
 	}
 
+	private void initSounds() {
+		bulletSound = Gdx.audio.newSound(Gdx.files.getFileHandle("data/sounds/shotgun.ogg", FileType.Internal));
+
+	}
+	
 	private void initParticles() {
 
 		effect = new ParticleEffect();
@@ -446,6 +456,8 @@ public class GamePlayScreen extends BaseGameScreen {
 		
 		effect.setPosition(position.x, position.y);
 		effect.start();
+		
+		bulletSound.play();
 /*
 		effect.setPosition( world.waterDropX, world.waterDropY);
 
